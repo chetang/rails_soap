@@ -1,3 +1,11 @@
 <h3>User</h3>
 <p>Name: <%= @user.name if @user.name %></p>
 <p>Email: <%= @user.email if @user.email %></p>
+<p>Odin Username: <%= @user.odin_username if @user.odin_username %></p>
+<p>Odin Password: <%= @user.odin_password if @user.odin_password %></p>
+<p>Odin Active: <%= @user.odin_active %></p>
+<p>LD Username: <%= @user.ld_username if @user.ld_username %></p>
+<p>LD Password: <%= @user.ld_password if @user.ld_password %></p>
+<p>LD Active: <%= @user.ld_active %></p>
+
+<button><%= link_to "Add Item", add_item_path %></button>

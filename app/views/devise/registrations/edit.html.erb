@@ -13,6 +13,32 @@
         <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
       <% end %>
     </div>
+
+    <div class="form-group">
+      <%= f.label :odin_username %>
+      <%= f.text_field :odin_username, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <%= f.label :odin_password %>
+      <%= f.text_field :odin_password, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <%= f.label :odin_active %>
+      <%= f.check_box :odin_active, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <%= f.label :ld_username %>
+      <%= f.text_field :ld_username, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <%= f.label :ld_password %>
+      <%= f.text_field :ld_password, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <%= f.label :ld_active %>
+      <%= f.check_box :ld_active, class: 'form-control' %>
+    </div>
+
     <fieldset>
       <p>Leave these fields blank if you don't want to change your password.</p>
       <div class="form-group">
