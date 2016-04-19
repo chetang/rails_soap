@@ -38,4 +38,8 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Determines if WashOut should camelize types within WSDL and responses.
+  # Supports true for CamelCase and :lower for camelCase. Default is false.
+  config.wash_out.camelize_wsdl = true
 end
