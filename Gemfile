@@ -8,6 +8,8 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'activerecord-session_store'
+gem 'resque', :require => "resque/server"
+
 ## Performance Boosting Gems
 gem 'ox'         # For faster XML Parsing, use Ox or Nokogiri. Ox has highest priority if available.
 gem 'nokogiri'   # For faster XML Parsing. If neither Ox nor Nokogiri available, we'll fall back to REXML.

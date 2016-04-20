@@ -4,4 +4,5 @@ Rails.application.routes.draw do
   devise_for :users, :controllers => { registrations: 'registrations' }
   resources :users
   get '/add_item'          , to: 'users#add_item'
+  mount Resque::Server, :at => "/resque"
 end

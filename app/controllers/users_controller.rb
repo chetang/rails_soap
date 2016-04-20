@@ -32,7 +32,8 @@ class UsersController < ApplicationController
     updated_price = params[:UpdatedPrice]
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" unless user
-    response = user.update_item_price(certificate_id, certified_by, updated_price)
+    # response = user.update_item_price(certificate_id, certified_by, updated_price)
+    Resque.enqueue(OdinUpdateSolitairePrice, user.id, certificate_id, certified_by, updated_price)
     render :soap => "Price of the diamond with certificate ID: #{certificate_id} by #{certified_by} will be updated to #{updated_price}. You will be notified by email, in case of any problems/ errors."
   rescue => e
     raise SOAPError, "Error occured : #{e}"
@@ -53,7 +54,8 @@ class UsersController < ApplicationController
     certified_by = params[:CertifiedBy]
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" unless user
-    response = user.delete_item(certificate_id, certified_by)
+    # response = user.delete_item(certificate_id, certified_by)
+    Resque.enqueue(OdinDeleteSolitaire, user.id, certificate_id, certified_by)
     render :soap => "Diamond with certificate ID: #{certificate_id} by #{certified_by} will be deleted. You will be notified by email, in case of any problems/ errors."
   rescue => e
     raise SOAPError, "Error occured : #{e}"
@@ -64,13 +66,14 @@ class UsersController < ApplicationController
       :AuthCode => AuthCode
     },
     :return => :string,
-    :to     => :delete_all_solitaires
+    :to     => :delete_all_items
 
   def delete_all_items
     auth_params = params[:AuthCode]
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" unless user
-    response = user.delete_all_items()
+    Resque.enqueue(OdinDeleteAll, user.id)
+    # response = user.delete_all_items()
     render :soap => "All your diamonds will be deleted. You will be notified by email, in case of any problems/ errors."
   rescue => e
     raise SOAPError, "Error occured : #{e}"
@@ -246,7 +249,7 @@ class UsersController < ApplicationController
     # Authenticate using auth_params, and process only if valid else return
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" unless user
-    response = user.add_odin_item(item_properties, input_currency, b_assign_cut_grade)
+    Resque.enqueue(OdinAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
     render :soap => "Diamond Added/ Updated successfully. Response from ODIN is #{response}"
   rescue => e
     raise SOAPError, "Error occured : #{e}"

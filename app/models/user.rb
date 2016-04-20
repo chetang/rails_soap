@@ -73,6 +73,8 @@ class User < ActiveRecord::Base
         current_processed_count = items_count
       end
       current_collection = collection[processed_count...current_processed_count]
+      Resque.enqueue(OdinBulkImportSolitaire, self.id, current_collection, input_currency, cut_grade)
+
       bulk_import_batch_message = {"AuthCode" => auth, "Collection" => current_collection, "InputCurrency" => input_currency, "AssignCutGrade" => cut_grade}
       # TODO : Move this call in a tube for the company
       # All ODIN related APIs should be queued in a single tube
@@ -83,6 +85,26 @@ class User < ActiveRecord::Base
       current_processed_count += 1000
     end
 
+    # Call ODIN API
+    # Convert the collection into a CSV and call the bulk upload API of LD
+    # The API Should be called using background processing
+    # If no error occurs,
+    return true
+  rescue => e
+    Rails.logger.error "Rescued while adding item and processing BulkImportSolitaires with error: #{e.inspect}"
+  end
+
+  def bulk_import_current_batch_items(collection, input_currency, cut_grade)
+    auth = {
+      "UserName" => self.odin_username,
+      "Password" => self.odin_password
+    }
+    bulk_import_batch_message = {"AuthCode" => auth, "Collection" => collection, "InputCurrency" => input_currency, "AssignCutGrade" => cut_grade}
+    # TODO : Move this call in a tube for the company
+    # All ODIN related APIs should be queued in a single tube
+    response = ODIN_CLIENT.call(:bulk_import_solitaires) do
+      message bulk_import_batch_message
+    end
     # Call ODIN API
     # Convert the collection into a CSV and call the bulk upload API of LD
     # The API Should be called using background processing
@@ -114,63 +136,4 @@ class User < ActiveRecord::Base
     Rails.logger.error "Rescued while adding item and processing AddSolitaire with error: #{e.inspect}"
   end
 
-  def self.add_odin_item(item = {})
-    user = User.find(3)
-    # user = current_user
-    auth = {
-      "UserName" => user.odin_username,
-      "Password" => user.odin_password
-    }
-    # auth = {
-    #   :user_name => user.odin_username,
-    #   :password => user.odin_password
-    # }
-    item_attributes = {
-      "Carat" => 1.1,
-      "Color" => "D",
-      "Shape" => "Round",
-      "Clarity" => "VS1",
-      "Cut" => "EX",
-      "Polish" => "EX",
-      "Symmetry" => "EX",
-      "Flourescence" => "None",
-      "GirdleFrom" => "Thick",
-      "GirdleTo" => "Thick",
-      "Inclusion" => "Yellow",
-      "IsCalRapPrice" => false,
-      "Price" => 7500.00,
-      "PricePerCarat" => 7500.00,
-      "CertifiedID" => "238472139324",
-      "CertifiedBy" => "GIA"
-    }
-    # item_attributes = {
-    #   :carat => 1.1,
-    #   :color => "D",
-    #   :shape => "Round",
-    #   :clarity => "VS1",
-    #   :cut => "EX",
-    #   :polish => "EX",
-    #   :symmetry => "EX",
-    #   :flourescence => "None",
-    #   :girdle_from => "Thick",
-    #   :girdle_to => "Thick",
-    #   :inclusion => "Yellow",
-    #   :is_cal_rap_price => false,
-    #   :price => 7500.00,
-    #   :price_per_carat => 7500.00,
-    #   :certified_iD => "238472391",
-    #   :certified_by => "GIA"
-    # }
-    #
-    # add_solitaire_message = {:auth_code => auth, :entity => item_attributes, :input_currency => "USD", :assign_cut_grade => false}
-    add_solitaire_message = {"AuthCode" => auth, "Entity" => item_attributes, "InputCurrency" => "USD", "AssignCutGrade" => false}
-    response = ODIN_CLIENT.call(:add_solitaire) do
-      message add_solitaire_message
-    end
-    # response = ODIN_CLIENT.call(:add_solitaire) do
-    #   convert_request_keys_to :camelcase
-    #   message add_solitaire_message
-    # end
-    return response
-  end
 end
