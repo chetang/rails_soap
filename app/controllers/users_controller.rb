@@ -82,83 +82,19 @@ class UsersController < ApplicationController
   soap_action "BulkImportSolitaires",
     :args => {
       :AuthCode => AuthCode,
-      :Collection => [
-        :SolitaireAPIEntity => {
-          :StockRefId => :string,
-          :ProductRefId => :integer,
-          :SalesmanId => :integer,
-          :Description => :string,
-          :Shape => :string,
-          :Carat => :double,
-          :Color => :string,
-          :Clarity => :string,
-          :Cut => :string,
-          :Polish => :string,
-          :Symmetry => :string,
-          :Flourescence => :string,
-          :Shade => :string,
-          :CertifiedBy => :string,
-          :CertifiedID => :string,
-          :MeaWidth => :double,
-          :MeaLength => :double,
-          :MeaDepth => :double,
-          :Depth => :double,
-          :TableSpec => :double,
-          :CrownHeight => :double,
-          :PavilionDepth => :double,
-          :Culet => :string,
-          :Graining => :string,
-          :GirdleFrom => :string,
-          :GirdleTo => :string,
-          :StoneType => :string,
-          :Inclusion => :string,
-          :Country => :string,
-          :Discount => :double,
-          :Price => :double,
-          :PricePerCarat => :double,
-          :Comments => :string,
-          :ReportComments => :string,
-          :Supplier => :string,
-          :Treatment => :string,
-          :LaserInscription => :boolean,
-          :KeyToSymbol => :string,
-          :GirdlePercentage => :double,
-          :PavilionAngle => :double,
-          :CrownAngle => :double,
-          :ImageName1 => :string,
-          :ImageName2 => :string,
-          :ImageName3 => :string,
-          :SecondaryPrice => :double,
-          :IsSpecial => :boolean,
-          :IsCalRapPrice => :boolean,
-          :Col_0 => :string,
-          :Col_1 => :string,
-          :Col_2 => :string,
-          :Col_3 => :string,
-          :Col_4 => :string,
-          :Col_5 => :string,
-          :Col_6 => :string,
-          :Col_7 => :string,
-          :Col_8 => :string,
-          :Col_9 => :string,
-          :Col_10 => :string,
-          :Col_11 => :string,
-          :Col_12 => :string,
-          :Col_13 => :string,
-          :Col_14 => :string
-        }
-      ],
+      :Collection => ArrayOfSolitaireAPIEntity,
       :InputCurrency => :string,
-      :bAssignCutGrade => :boolean
+      :BAssignCutGrade => :boolean
     },
     :return => :string,
     :to     => :bulk_import_solitaires
 
   def bulk_import_solitaires
     collection = params[:Collection]
+debugger
     auth_params = params[:AuthCode]
     input_currency = params[:InputCurrency]
-    b_assign_cut_grade = params[:bAssignCutGrade]
+    b_assign_cut_grade = params[:BAssignCutGrade]
     # Authenticate using auth_params, and process only if valid else return
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" unless user
