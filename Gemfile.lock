@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/chetang/wash_out.git
+  revision: e16f917d7ebea1e47e8186e38f4b62ca2520f928
+  branch: support-nested-arrays
+  specs:
+    wash_out (0.10.0)
+      nori (>= 2.0.0)
+
+GIT
   remote: https://github.com/rubyjedi/soap4r.git
   revision: 290ff109194b42e85adb43e03060452b359ed860
   branch: master
@@ -215,8 +223,6 @@ GEM
     wasabi (3.5.0)
       httpi (~> 2.0)
       nokogiri (>= 1.4.2)
-    wash_out (0.10.0)
-      nori (>= 2.0.0)
     web-console (2.3.0)
       activemodel (>= 4.0)
       binding_of_caller (>= 0.7.2)
@@ -253,7 +259,7 @@ DEPENDENCIES
   thin
   turbolinks
   uglifier (>= 1.3.0)
-  wash_out
+  wash_out!
   web-console (~> 2.0)
 
 BUNDLED WITH

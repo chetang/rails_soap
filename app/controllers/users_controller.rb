@@ -18,23 +18,20 @@ class UsersController < ApplicationController
   soap_action "UpdateSolitairePrice",
     :args => {
       :AuthCode => AuthCode,
-      :CertifiedBy => :string,
-      :CertifiedId => :string,
-      :UpdatedPrice => :double
+      :Collection => ArrayOfPriceUpdatedEntity,
+      :InputCurrency => :string
     },
     :return => :string,
-    :to     => :delete_all_solitaires
+    :to     => :udpate_item_price
 
   def udpate_item_price
     auth_params = params[:AuthCode]
-    certificate_id = params[:CertifiedId]
-    certified_by = params[:CertifiedBy]
-    updated_price = params[:UpdatedPrice]
+    collection = params[:Collection]
+    input_currency = params[:InputCurrency]
     user = User.authenticate(auth_params)
-    render :soap => "Invalid Username and password" unless user
-    # response = user.update_item_price(certificate_id, certified_by, updated_price)
-    Resque.enqueue(OdinUpdateSolitairePrice, user.id, certificate_id, certified_by, updated_price)
-    render :soap => "Price of the diamond with certificate ID: #{certificate_id} by #{certified_by} will be updated to #{updated_price}. You will be notified by email, in case of any problems/ errors."
+    render :soap => "Invalid Username and password" and return unless user
+    response = user.update_prices(collection, input_currency)
+    render :soap => "Diamonds processing added successfully. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
   end
@@ -53,7 +50,7 @@ class UsersController < ApplicationController
     certificate_id = params[:CertifiedId]
     certified_by = params[:CertifiedBy]
     user = User.authenticate(auth_params)
-    render :soap => "Invalid Username and password" unless user
+    render :soap => "Invalid Username and password" and return unless user
     # response = user.delete_item(certificate_id, certified_by)
     Resque.enqueue(OdinDeleteSolitaire, user.id, certificate_id, certified_by)
     render :soap => "Diamond with certificate ID: #{certificate_id} by #{certified_by} will be deleted. You will be notified by email, in case of any problems/ errors."
@@ -71,7 +68,7 @@ class UsersController < ApplicationController
   def delete_all_items
     auth_params = params[:AuthCode]
     user = User.authenticate(auth_params)
-    render :soap => "Invalid Username and password" unless user
+    render :soap => "Invalid Username and password" and return unless user
     Resque.enqueue(OdinDeleteAll, user.id)
     # response = user.delete_all_items()
     render :soap => "All your diamonds will be deleted. You will be notified by email, in case of any problems/ errors."
@@ -91,15 +88,14 @@ class UsersController < ApplicationController
 
   def bulk_import_solitaires
     collection = params[:Collection]
-debugger
     auth_params = params[:AuthCode]
     input_currency = params[:InputCurrency]
     b_assign_cut_grade = params[:BAssignCutGrade]
     # Authenticate using auth_params, and process only if valid else return
     user = User.authenticate(auth_params)
-    render :soap => "Invalid Username and password" unless user
+    render :soap => "Invalid Username and password" and return unless user
     response = user.bulk_import_items(collection, input_currency, b_assign_cut_grade)
-    render :soap => "Diamonds processing added successfully. You will be notified by email, in case of any problems/ errors."
+    render :soap => "Diamonds processing added successfully. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
   end
@@ -184,7 +180,7 @@ debugger
     b_assign_cut_grade = params[:bAssignCutGrade]
     # Authenticate using auth_params, and process only if valid else return
     user = User.authenticate(auth_params)
-    render :soap => "Invalid Username and password" unless user
+    render :soap => "Invalid Username and password" and return unless user
     Resque.enqueue(OdinAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
     render :soap => "Diamond Added/ Updated successfully. Response from ODIN is #{response}"
   rescue => e

@@ -3,6 +3,5 @@ Rails.application.routes.draw do
   root to: 'visitors#index'
   devise_for :users, :controllers => { registrations: 'registrations' }
   resources :users
-  get '/add_item'          , to: 'users#add_item'
   mount Resque::Server, :at => "/resque"
 end

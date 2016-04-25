@@ -16,7 +16,7 @@ gem 'nokogiri'   # For faster XML Parsing. If neither Ox nor Nokogiri available,
 gem 'httpclient' # Absolutely necessary for soap4r-ng. Net::HTTP Fallback is quite broken, so don't let that happen.
 #
 gem 'soap4r-ng', :git=>'https://github.com/rubyjedi/soap4r.git', :branch=>"master"
-gem 'wash_out'
+gem 'wash_out', :git=>'https://github.com/chetang/wash_out.git', :branch=>"support-nested-arrays"
 
 group :development, :test do
   gem 'byebug'

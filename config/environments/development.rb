@@ -42,4 +42,5 @@ Rails.application.configure do
   # Determines if WashOut should camelize types within WSDL and responses.
   # Supports true for CamelCase and :lower for camelCase. Default is false.
   config.wash_out.camelize_wsdl = true
+  config.wash_out.parser = :nokogiri
 end
