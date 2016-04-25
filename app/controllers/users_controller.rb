@@ -43,7 +43,7 @@ class UsersController < ApplicationController
       :CertifiedId => :string
     },
     :return => :string,
-    :to     => :delete_all_solitaires
+    :to     => :delete_item
 
   def delete_item
     auth_params = params[:AuthCode]
