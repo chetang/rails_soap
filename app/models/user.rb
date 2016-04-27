@@ -35,6 +35,7 @@ class User < ActiveRecord::Base
     response = ODIN_CLIENT.call(:delete_solitaire) do
       message delete_message
     end
+    Rails.logger.info "Response from delete_solitaire ODIN is : #{response}"
     # TODO : Add the above API call in background process
     # Call the LD API
     return true
@@ -51,6 +52,7 @@ class User < ActiveRecord::Base
     response = ODIN_CLIENT.call(:delete_all_solitaires) do
       message delete_all_message
     end
+    Rails.logger.info "Response from delete_all_solitaires ODIN is : #{response}"
     # TODO : Add the above API call in background process
     # Call the LD API
     return true
@@ -148,13 +150,17 @@ class User < ActiveRecord::Base
       "Password" => self.odin_password
     }
 
-    bulk_import_batch_message = {"AuthCode" => auth, "Collection" => {"SolitaireAPIEntity" => collection}, "InputCurrency" => input_currency, "AssignCutGrade" => cut_grade}
     # TODO : Move this call in a tube for the company
     # All ODIN related APIs should be queued in a single tube
+    collection.each do |entity|
+      entity.delete_if{|k, v| v.nil?}
+    end
+    bulk_import_batch_message = {"AuthCode" => auth, "Collection" => {"SolitaireAPIEntity" => collection}, "InputCurrency" => input_currency, "AssignCutGrade" => cut_grade}
     response = ODIN_CLIENT.call(:bulk_import_solitaires) do
       message bulk_import_batch_message
     end
-    puts "Response to bulkImportSolitaires : #{response}"
+    Rails.logger.info "Response from bulkImportSolitaires : #{response}"
+    puts "Response from bulkImportSolitaires : #{response}"
     # Call ODIN API
     # Convert the collection into a CSV and call the bulk upload API of LD
     # The API Should be called using background processing
@@ -169,6 +175,7 @@ class User < ActiveRecord::Base
       "UserName" => self.odin_username,
       "Password" => self.odin_password
     }
+    item_attributes.delete_if{|key,value| value.nil? }
     add_solitaire_message = {"AuthCode" => auth, "Entity" => item_attributes, "InputCurrency" => input_currency, "AssignCutGrade" => cut_grade}
     # TODO : Move this call in a tube for the company
     # Call ODIN API
@@ -181,6 +188,7 @@ class User < ActiveRecord::Base
     # TODO: Call LD Restful API
     # If no error occurs,
     p "Response of AddSolitaire from ODIN is #{response.inspect}"
+    Rails.logger.info "Response of AddSolitaire from ODIN is #{response.inspect}"
     return response.body
   rescue => e
     Rails.logger.error "Rescued while adding item and processing AddSolitaire with error: #{e.inspect}"

@@ -53,7 +53,7 @@ class UsersController < ApplicationController
     render :soap => "Invalid Username and password" and return unless user
     # response = user.delete_item(certificate_id, certified_by)
     Resque.enqueue(OdinDeleteSolitaire, user.id, certificate_id, certified_by)
-    render :soap => "Diamond with certificate ID: #{certificate_id} by #{certified_by} will be deleted. You will be notified by email, in case of any problems/ errors."
+    render :soap => "Diamond with certificate ID: #{certificate_id} by #{certified_by} will be deleted. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
   end
@@ -71,7 +71,7 @@ class UsersController < ApplicationController
     render :soap => "Invalid Username and password" and return unless user
     Resque.enqueue(OdinDeleteAll, user.id)
     # response = user.delete_all_items()
-    render :soap => "All your diamonds will be deleted. You will be notified by email, in case of any problems/ errors."
+    render :soap => "All your diamonds will be deleted. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
   end
@@ -182,7 +182,7 @@ class UsersController < ApplicationController
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     Resque.enqueue(OdinAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
-    render :soap => "Diamond Added/ Updated successfully. Response from ODIN is #{response}"
+    render :soap => "Diamond Added/ Updated successfully. Response from ODIN is #{response}" and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
   end
