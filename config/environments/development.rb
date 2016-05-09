@@ -43,5 +43,5 @@ Rails.application.configure do
   # Supports true for CamelCase and :lower for camelCase. Default is false.
   config.wash_out.camelize_wsdl = true
   config.wash_out.parser = :nokogiri
-  # config.wash_out.wsdl_style = 'document'
+  config.wash_out.wsdl_style = 'document'
 end
