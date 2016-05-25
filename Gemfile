@@ -17,6 +17,7 @@ gem 'httpclient' # Absolutely necessary for soap4r-ng. Net::HTTP Fallback is qui
 #
 gem 'soap4r-ng', :git=>'https://github.com/rubyjedi/soap4r.git', :branch=>"master"
 gem 'wash_out', :git=>'https://github.com/chetang/wash_out.git', :branch=>"support-nested-arrays"
+gem 'rest-client'
 
 group :development, :test do
   gem 'byebug'
