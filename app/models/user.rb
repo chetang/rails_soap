@@ -10,22 +10,6 @@ class User < ActiveRecord::Base
     return nil
   end
 
-  def update_item_price(certificate_id, certified_by, updated_price)
-    auth = {
-      "UserName" => self.odin_username,
-      "Password" => self.odin_password
-    }
-    update_price_message = {"AuthCode" => auth, "CertifiedID" => certificate_id, "CertifiedBy" => certified_by, "UpdatedPrice" => updated_price}
-    response = ODIN_CLIENT.call(:udpate_solitaire_price) do
-      message update_price_message
-    end
-    # TODO : Add the above API call in background process
-    # Call the LD API
-    return true
-  rescue => e
-    Rails.logger.error "Rescued while updating item price and processing UpdateSolitairePrice with error: #{e.inspect}"
-  end
-
   def delete_item(certificate_id, certified_by)
     auth = {
       "UserName" => self.odin_username,
@@ -35,7 +19,7 @@ class User < ActiveRecord::Base
     response = ODIN_CLIENT.call(:delete_solitaire) do
       message delete_message
     end
-    Rails.logger.info "Response from delete_solitaire ODIN is : #{response}"
+    Rails.logger.debug "Response from delete_solitaire ODIN is : #{response}"
     # TODO : Add the above API call in background process
     # Call the LD API
     return true
@@ -76,7 +60,7 @@ class User < ActiveRecord::Base
         current_processed_count = items_count
       end
       current_collection = priceUpdatedEntities[processed_count...current_processed_count]
-      p "resque enqueuing OdinBulkImportSolitaire for current_collection: #{current_collection}"
+      Rails.logger.debug "Enqueuing OdinUpdateSolitairePrice for current_collection of length: #{current_collection.length}"
       Resque.enqueue(OdinUpdateSolitairePrice, self.id, current_collection, input_currency)
       processed_count = current_processed_count
       current_processed_count += BATCH_PROCESSING_COUNT
@@ -88,7 +72,7 @@ class User < ActiveRecord::Base
     # If no error occurs,
     return true
   rescue => e
-    Rails.logger.error "Rescued while adding item and processing BulkImportSolitaires with error: #{e.inspect}"
+    Rails.logger.error "Rescued while adding item and processing whole UpdateSolitairePrice with error: #{e.inspect}"
   end
 
   def bulk_import_items(collection, input_currency = "USD", cut_grade = false)
@@ -107,7 +91,7 @@ class User < ActiveRecord::Base
         current_processed_count = items_count
       end
       current_collection = solitaireAPIEntities[processed_count...current_processed_count]
-      p "resque enqueuing OdinBulkImportSolitaire for current_collection: #{current_collection}"
+      Rails.logger.debug "Enqueuing OdinBulkImportSolitaire for current_collection of length: #{current_collection.length}"
       Resque.enqueue(OdinBulkImportSolitaire, self.id, current_collection, input_currency, cut_grade)
       processed_count = current_processed_count
       current_processed_count += BATCH_PROCESSING_COUNT
@@ -119,7 +103,7 @@ class User < ActiveRecord::Base
     # If no error occurs,
     return true
   rescue => e
-    Rails.logger.error "Rescued while adding item and processing BulkImportSolitaires with error: #{e.inspect}"
+    Rails.logger.error "Rescued while adding item and processing whole BulkImportSolitaires with error: #{e.inspect}"
   end
 
   def update_current_batch_item_prices(collection, input_currency)
@@ -134,7 +118,7 @@ class User < ActiveRecord::Base
     response = ODIN_CLIENT.call(:update_solitaire_price) do
       message bulk_update_batch_message
     end
-    puts "Response to updateSolitairePrice : #{response}"
+    Rails.logger.debug "Response from update_solitaire_price : #{response}"
     # Call ODIN API
     # Convert the collection into a CSV and call the bulk upload API of LD
     # The API Should be called using background processing
@@ -181,13 +165,13 @@ class User < ActiveRecord::Base
     # Call ODIN API
     # The API Should be called using backgound processing
     # All ODIN related APIs should be queued in a single tube
-    p "AddSolitaire message is #{add_solitaire_message.inspect}"
+    Rails.logger.debug "AddSolitaire message is #{add_solitaire_message.inspect}"
     response = ODIN_CLIENT.call(:add_solitaire) do
       message add_solitaire_message
     end
     # TODO: Call LD Restful API
     # If no error occurs,
-    p "Response of AddSolitaire from ODIN is #{response.inspect}"
+    Rails.logger.debug "Response of AddSolitaire from ODIN is #{response.inspect}"
     Rails.logger.info "Response of AddSolitaire from ODIN is #{response.inspect}"
     return response.body
   rescue => e
