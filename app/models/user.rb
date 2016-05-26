@@ -91,8 +91,11 @@ class User < ActiveRecord::Base
         current_processed_count = items_count
       end
       current_collection = solitaireAPIEntities[processed_count...current_processed_count]
+      json_formatted_current_collection = JSON.dump(current_collection)
+      redis_key = Time.now.to_i.to_s
+      $redis.set(redis_key, json_formatted_current_collection)
       Rails.logger.debug "Enqueuing OdinBulkImportSolitaire for current_collection of length: #{current_collection.length}"
-      Resque.enqueue(OdinBulkImportSolitaire, self.id, current_collection, input_currency, cut_grade)
+      Resque.enqueue(OdinBulkImportSolitaire, self.id, redis_key, input_currency, cut_grade)
       processed_count = current_processed_count
       current_processed_count += BATCH_PROCESSING_COUNT
     end
@@ -128,7 +131,7 @@ class User < ActiveRecord::Base
     Rails.logger.error "Rescued while adding item and processing UpdateSolitairePrice with error: #{e.inspect}"
   end
 
-  def bulk_import_current_batch_items(collection, input_currency, cut_grade)
+  def bulk_import_current_batch_items(collection_key, input_currency, cut_grade)
     auth = {
       "UserName" => self.odin_username,
       "Password" => self.odin_password
@@ -136,6 +139,8 @@ class User < ActiveRecord::Base
 
     # TODO : Move this call in a tube for the company
     # All ODIN related APIs should be queued in a single tube
+    collection_string = $redis.get(collection_key)
+    collection = JSON.parse(collection_string)
     collection.each do |entity|
       entity.delete_if{|k, v| v.nil?}
     end
@@ -149,6 +154,7 @@ class User < ActiveRecord::Base
     # Convert the collection into a CSV and call the bulk upload API of LD
     # The API Should be called using background processing
     # If no error occurs,
+    $redis.del(collection_string)
     return true
   rescue => e
     Rails.logger.error "Rescued while adding item and processing BulkImportSolitaires with error: #{e.inspect}"

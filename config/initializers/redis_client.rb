@@ -1,0 +1,1 @@
+$redis = Redis::Namespace.new("int_soap_app", :redis => Redis.new)
