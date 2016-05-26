@@ -62,6 +62,7 @@ class User < ActiveRecord::Base
       current_collection = priceUpdatedEntities[processed_count...current_processed_count]
       json_formatted_current_collection = JSON.dump(current_collection)
       key = Time.now.to_i.to_s
+      bulk_import_current_batch_cs = nil
       CollectionStorage.transaction do
         bulk_import_current_batch_cs = CollectionStorage.new({user_id: self.id, key: key, collection: json_formatted_current_collection, company: 'kiran'})
         bulk_import_current_batch_cs.save!
@@ -99,6 +100,7 @@ class User < ActiveRecord::Base
       current_collection = solitaireAPIEntities[processed_count...current_processed_count]
       json_formatted_current_collection = JSON.dump(current_collection)
       key = Time.now.to_i.to_s
+      bulk_import_current_batch_cs = nil
       CollectionStorage.transaction do
         bulk_import_current_batch_cs = CollectionStorage.new({user_id: self.id, key: key, collection: json_formatted_current_collection, company: 'kiran'})
         bulk_import_current_batch_cs.save!
