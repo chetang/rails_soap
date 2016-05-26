@@ -60,8 +60,14 @@ class User < ActiveRecord::Base
         current_processed_count = items_count
       end
       current_collection = priceUpdatedEntities[processed_count...current_processed_count]
+      json_formatted_current_collection = JSON.dump(current_collection)
+      key = Time.now.to_i.to_s
+      CollectionStorage.transaction do
+        bulk_import_current_batch_cs = CollectionStorage.new({user_id: self.id, key: key, collection: json_formatted_current_collection, company: 'kiran'})
+        bulk_import_current_batch_cs.save!
+      end
       Rails.logger.debug "Enqueuing OdinUpdateSolitairePrice for current_collection of length: #{current_collection.length}"
-      Resque.enqueue(OdinUpdateSolitairePrice, self.id, current_collection, input_currency)
+      Resque.enqueue(OdinUpdateSolitairePrice, self.id, bulk_import_current_batch_cs.id, input_currency)
       processed_count = current_processed_count
       current_processed_count += BATCH_PROCESSING_COUNT
     end
@@ -92,10 +98,13 @@ class User < ActiveRecord::Base
       end
       current_collection = solitaireAPIEntities[processed_count...current_processed_count]
       json_formatted_current_collection = JSON.dump(current_collection)
-      redis_key = Time.now.to_i.to_s
-      $redis.set(redis_key, json_formatted_current_collection)
+      key = Time.now.to_i.to_s
+      CollectionStorage.transaction do
+        bulk_import_current_batch_cs = CollectionStorage.new({user_id: self.id, key: key, collection: json_formatted_current_collection, company: 'kiran'})
+        bulk_import_current_batch_cs.save!
+      end
       Rails.logger.debug "Enqueuing OdinBulkImportSolitaire for current_collection of length: #{current_collection.length}"
-      Resque.enqueue(OdinBulkImportSolitaire, self.id, redis_key, input_currency, cut_grade)
+      Resque.enqueue(OdinBulkImportSolitaire, self.id, bulk_import_current_batch_cs.id, input_currency, cut_grade)
       processed_count = current_processed_count
       current_processed_count += BATCH_PROCESSING_COUNT
     end
@@ -109,23 +118,29 @@ class User < ActiveRecord::Base
     Rails.logger.error "Rescued while adding item and processing whole BulkImportSolitaires with error: #{e.inspect}"
   end
 
-  def update_current_batch_item_prices(collection, input_currency)
+  def update_current_batch_item_prices(collection_key, input_currency)
     auth = {
       "UserName" => self.odin_username,
       "Password" => self.odin_password
     }
-
-    bulk_update_batch_message = {"AuthCode" => auth, "Collection" => {"PriceUpdatedEntity" => collection}, "InputCurrency" => input_currency}
-    # TODO : Move this call in a tube for the company
-    # All ODIN related APIs should be queued in a single tube
-    response = ODIN_CLIENT.call(:update_solitaire_price) do
-      message bulk_update_batch_message
+    batch_cs = CollectionStorage.find(collection_key)
+    if batch_cs.present?
+      collection_string = batch_cs.collection
+      collection = JSON.parse(collection_string)
+      bulk_update_batch_message = {"AuthCode" => auth, "Collection" => {"PriceUpdatedEntity" => collection}, "InputCurrency" => input_currency}
+      # TODO : Move this call in a tube for the company
+      # All ODIN related APIs should be queued in a single tube
+      response = ODIN_CLIENT.call(:update_solitaire_price) do
+        message bulk_update_batch_message
+      end
+      Rails.logger.debug "Response from update_solitaire_price : #{response}"
+      # Call ODIN API
+      # Convert the collection into a CSV and call the bulk upload API of LD
+      # The API Should be called using background processing
+      # If no error occurs,
+    else
+      Rails.logger.error "NEED ATTENTION - update_current_batch_item_prices CollectionStorage could not be found with id: #{collection_key}"
     end
-    Rails.logger.debug "Response from update_solitaire_price : #{response}"
-    # Call ODIN API
-    # Convert the collection into a CSV and call the bulk upload API of LD
-    # The API Should be called using background processing
-    # If no error occurs,
     return true
   rescue => e
     Rails.logger.error "Rescued while adding item and processing UpdateSolitairePrice with error: #{e.inspect}"
@@ -139,22 +154,26 @@ class User < ActiveRecord::Base
 
     # TODO : Move this call in a tube for the company
     # All ODIN related APIs should be queued in a single tube
-    collection_string = $redis.get(collection_key)
-    collection = JSON.parse(collection_string)
-    collection.each do |entity|
-      entity.delete_if{|k, v| v.nil?}
+    batch_cs = CollectionStorage.find(collection_key)
+    if batch_cs.present?
+      collection_string = batch_cs.collection
+      collection = JSON.parse(collection_string)
+      collection.each do |entity|
+        entity.delete_if{|k, v| v.nil?}
+      end
+      bulk_import_batch_message = {"AuthCode" => auth, "Collection" => {"SolitaireAPIEntity" => collection}, "InputCurrency" => input_currency, "AssignCutGrade" => cut_grade}
+      response = ODIN_CLIENT.call(:bulk_import_solitaires) do
+        message bulk_import_batch_message
+      end
+      Rails.logger.info "Response from bulkImportSolitaires : #{response}"
+      puts "Response from bulkImportSolitaires : #{response}"
+      # Call ODIN API
+      # Convert the collection into a CSV and call the bulk upload API of LD
+      # The API Should be called using background processing
+      # If no error occurs,
+    else
+      Rails.logger.error "NEED ATTENTION - bulk_import_current_batch_items CollectionStorage could not be found with id: #{collection_key}"
     end
-    bulk_import_batch_message = {"AuthCode" => auth, "Collection" => {"SolitaireAPIEntity" => collection}, "InputCurrency" => input_currency, "AssignCutGrade" => cut_grade}
-    response = ODIN_CLIENT.call(:bulk_import_solitaires) do
-      message bulk_import_batch_message
-    end
-    Rails.logger.info "Response from bulkImportSolitaires : #{response}"
-    puts "Response from bulkImportSolitaires : #{response}"
-    # Call ODIN API
-    # Convert the collection into a CSV and call the bulk upload API of LD
-    # The API Should be called using background processing
-    # If no error occurs,
-    $redis.del(collection_string)
     return true
   rescue => e
     Rails.logger.error "Rescued while adding item and processing BulkImportSolitaires with error: #{e.inspect}"
