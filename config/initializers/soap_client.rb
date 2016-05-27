@@ -1,2 +1,2 @@
 ODIN_SOAP_API_URL = "http://huabi.ejewel.co.in/odinapi.asmx?WSDL"
-ODIN_CLIENT = Savon.client(:wsdl => ODIN_SOAP_API_URL, :convert_request_keys_to => :camelcase, open_timeout: 7200, read_timeout: 50)
+ODIN_CLIENT = Savon.client(:wsdl => ODIN_SOAP_API_URL, :convert_request_keys_to => :camelcase, open_timeout: 7200, read_timeout: 600)
