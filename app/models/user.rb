@@ -72,8 +72,10 @@ class User < ActiveRecord::Base
       processed_count = current_processed_count
       current_processed_count += BATCH_PROCESSING_COUNT
     end
-
-    # Call ODIN API
+    # Call Odin UpdateSolitairePriceProcessCompleted API
+    bulk_update_completed_message = {"AuthCode" => auth}
+    Resque.enqueue(OdinUpdateSolitairePriceCompleted, bulk_update_completed_message)
+    # All ODIN related APIs should be queued in a single tube
     # Convert the collection into a CSV and call the bulk upload API of LD
     # The API Should be called using background processing
     # If no error occurs,
@@ -110,7 +112,9 @@ class User < ActiveRecord::Base
       processed_count = current_processed_count
       current_processed_count += BATCH_PROCESSING_COUNT
     end
-
+    # Call Odin BulkImportProcessCompleted API
+    bulk_update_completed_message = {"AuthCode" => auth}
+    Resque.enqueue(OdinBulkImportSolitaireCompleted, bulk_update_completed_message)
     # Call ODIN API
     # Convert the collection into a CSV and call the bulk upload API of LD
     # The API Should be called using background processing
