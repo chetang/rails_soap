@@ -15,7 +15,7 @@ class UsersController < ApplicationController
     end
   end
 
-  soap_action "DeleteSolitaires"
+  soap_action "DeleteSolitaires",
     :args => {
       :AuthCode => AuthCode,
       :Collection => ArrayOfSolitaireDeleteEntity
