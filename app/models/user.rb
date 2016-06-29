@@ -44,6 +44,23 @@ class User < ActiveRecord::Base
     Rails.logger.error "Rescued while deleting items and processing DeleteAllSolitaires with error: #{e.inspect}"
   end
 
+  def delete_solitaires(collection)
+    raise "Collection can't be nil. Please provide a list of objects with 'CertifiedBy' and 'CertifiedID'" if collection.blank?
+    auth = {
+      "UserName" => self.odin_username,
+      "Password" => self.odin_password
+    }
+    bulk_delete_message = {"AuthCode" => auth, "Collection" => collection}
+    response = ODIN_CLIENT.call(:delete_multiple_solitaires) do
+      message bulk_delete_message
+    end
+    Rails.logger.info "Response from delete_multiple_solitaires ODIN is : #{response}"
+    # Call the LD API
+    return true
+  rescue => e
+    Rails.logger.error "Rescued while deleting items and processing DeleteMultipleSolitaires with error: #{e.inspect}"
+  end
+
   def update_prices(collection, input_currency = "USD")
     auth = {
       "UserName" => self.odin_username,

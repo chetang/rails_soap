@@ -15,6 +15,28 @@ class UsersController < ApplicationController
     end
   end
 
+  soap_action "DeleteSolitaires"
+    :args => {
+      :AuthCode => AuthCode,
+      :Collection => ArrayOfSolitaireDeleteEntity
+    },
+    :return => :string,
+    :to     => :bulk_delete
+
+  def bulk_delete
+    auth_params = params[:AuthCode]
+    collection = params[:Collection]
+    raise "Collection can't be nil. Please provide a list of objects with 'CertifiedBy' and 'CertifiedID'" if collection.blank?
+    user = User.authenticate(auth_params)
+    render :soap => "Invalid Username and password" and return unless user
+    # response = user.delete_solitaires(collection)
+    Resque.enqueue(OdinDeleteBulk, user.id, collection)
+    Rails.logger.debug "Successfully processed delete_solitaires and background processing is queued"
+    render :soap => "Delete Solitaires is being processed. You will be notified by email, in case of any problems/ errors." and return
+  rescue => e
+    raise SOAPError, "Error occured : #{e}"
+  end
+
   soap_action "UpdateSolitairePrice",
     :args => {
       :AuthCode => AuthCode,
@@ -28,6 +50,7 @@ class UsersController < ApplicationController
     auth_params = params[:AuthCode]
     collection = params[:Collection]
     input_currency = params[:InputCurrency]
+    raise "Collection can't be nil. Please provide a list of objects with 'CertifiedBy', 'CertifiedID' & 'UpdatedPrice'" if collection.blank?
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     response = user.update_prices(collection, input_currency)
