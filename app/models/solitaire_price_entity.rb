@@ -1,4 +1,4 @@
-class PriceUpdatedEntity < WashOut::Type
+class SolitairePriceEntity < WashOut::Type
   map(
    :CertifiedBy => :string,
    :CertifiedId => :string,

@@ -66,7 +66,7 @@ class User < ActiveRecord::Base
       "UserName" => self.odin_username,
       "Password" => self.odin_password
     }
-    priceUpdatedEntities = collection[:PriceUpdatedEntity]
+    priceUpdatedEntities = collection[:SolitairePriceEntity]
     items_count = priceUpdatedEntities.length
     # TODO : Call the Odin API in batch of BATCH_PROCESSING_COUNT
     # Also the calls must be made using background processing
@@ -150,13 +150,13 @@ class User < ActiveRecord::Base
     if batch_cs.present?
       collection_string = batch_cs.collection
       collection = JSON.parse(collection_string)
-      bulk_update_batch_message = {"AuthCode" => auth, "Collection" => {"PriceUpdatedEntity" => collection}, "InputCurrency" => input_currency}
+      bulk_update_batch_message = {"AuthCode" => auth, "Collection" => {"SolitairePriceEntity" => collection}, "InputCurrency" => input_currency}
       # TODO : Move this call in a tube for the company
       # All ODIN related APIs should be queued in a single tube
-      response = ODIN_CLIENT.call(:update_solitaire_price) do
+      response = ODIN_CLIENT.call(:bulk_update_solitaire_prices) do
         message bulk_update_batch_message
       end
-      Rails.logger.debug "Response from update_solitaire_price : #{response}"
+      Rails.logger.debug "Response from bulk_update_solitaire_prices : #{response}"
       # Call ODIN API
       # Convert the collection into a CSV and call the bulk upload API of LD
       # The API Should be called using background processing

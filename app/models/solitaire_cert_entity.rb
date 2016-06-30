@@ -1,4 +1,4 @@
-class SolitaireDeleteEntity < WashOut::Type
+class SolitaireCertEntity < WashOut::Type
   map(
    :CertifiedBy => :string,
    :CertifiedId => :string

@@ -15,10 +15,10 @@ class UsersController < ApplicationController
     end
   end
 
-  soap_action "DeleteSolitaires",
+  soap_action "DeleteMultipleSolitaires",
     :args => {
       :AuthCode => AuthCode,
-      :Collection => ArrayOfSolitaireDeleteEntity
+      :Collection => ArrayOfSolitaireCertEntity
     },
     :return => :string,
     :to     => :bulk_delete
@@ -37,10 +37,10 @@ class UsersController < ApplicationController
     raise SOAPError, "Error occured : #{e}"
   end
 
-  soap_action "UpdateSolitairePrice",
+  soap_action "BulkUpdateSolitairePrices",
     :args => {
       :AuthCode => AuthCode,
-      :Collection => ArrayOfPriceUpdatedEntity,
+      :Collection => ArrayOfSolitairePriceEntity,
       :InputCurrency => :string
     },
     :return => :string,
