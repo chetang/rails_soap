@@ -197,6 +197,7 @@ class User < ActiveRecord::Base
         csv << hash_values
       end
     end
+    Rails.logger.warn "bulk_import_items is called @ #{DateTime.now}- created filename is #{sanitized_file_name}"
     # CSV.open(path, "wb") do |csv|
     #   csv << solitaireAPIEntities.first.keys
     #   solitaireAPIEntities.each do |hash|
