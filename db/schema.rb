@@ -25,6 +25,16 @@ ActiveRecord::Schema.define(version: 20160526152036) do
     t.datetime "updated_at"
   end
 
+  create_table "api_keys", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "access_token"
+    t.string   "company"
+    t.datetime "expired_at"
+    t.boolean  "is_active"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.string   "session_id", null: false
     t.text     "data"

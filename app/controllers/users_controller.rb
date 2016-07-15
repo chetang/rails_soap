@@ -49,13 +49,14 @@ class UsersController < ApplicationController
   def udpate_item_price
     auth_params = params[:AuthCode]
     collection = params[:Collection]
+    number_of_diamonds = collection.length
     input_currency = params[:InputCurrency]
     raise "Collection can't be nil. Please provide a list of objects with 'CertifiedBy', 'CertifiedID' & 'UpdatedPrice'" if collection.blank?
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     response = user.update_prices(collection, input_currency)
     Rails.logger.debug "Successfully processed update_item_prices and background processing is queued"
-    render :soap => "Diamonds processing added successfully. You will be notified by email, in case of any problems/ errors." and return
+    render :soap => "#{number_of_diamonds} diamonds processing added successfully. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
   end
@@ -77,6 +78,7 @@ class UsersController < ApplicationController
     render :soap => "Invalid Username and password" and return unless user
     # response = user.delete_item(certificate_id, certified_by)
     Resque.enqueue(OdinDeleteSolitaire, user.id, certificate_id, certified_by)
+    Resque.enqueue(LDDeleteSolitaire, user.id, certificate_id, certified_by)
     Rails.logger.debug "Successfully processed delete_item and background processing is queued"
     render :soap => "Diamond with certificate ID: #{certificate_id} by #{certified_by} will be deleted. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
@@ -95,6 +97,7 @@ class UsersController < ApplicationController
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     Resque.enqueue(OdinDeleteAll, user.id)
+    Resque.enqueue(LDDeleteAll, user.id)
     # response = user.delete_all_items()
     Rails.logger.debug "Successfully processed delete_all_items and background processing is queued"
     render :soap => "All your diamonds will be deleted. You will be notified by email, in case of any problems/ errors." and return
@@ -209,6 +212,7 @@ class UsersController < ApplicationController
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     Resque.enqueue(OdinAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
+    Resque.enqueue(LDAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
     Rails.logger.debug "Successfully processed add_item and background processing is queued"
     render :soap => "Diamond Added/ Updated successfully. Response from ODIN is #{response}" and return
   rescue => e
