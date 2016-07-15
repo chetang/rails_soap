@@ -3,10 +3,12 @@ class OdinBulkImportSolitaireCompleted
 
   def self.perform(auth_code)
     puts ">>>>>>>>  OdinBulkImportSolitaireCompleted processing started"
-    response = ODIN_CLIENT.call(:bulk_import_process_completed) do
+    response = ODIN_CLIENT.call(:bulk_import_solitaires_completed) do
       message auth_code
     end
-    Rails.logger.debug "Response from update_solitaire_price_process_completed : #{response}"
-    puts "<<<<<<<<  OdinBulkImportSolitaireCompleted processing completed"
+    Rails.logger.debug "Response to BulkImportSolitairesCompleted : #{response}"
+    Rails.logger.debug "<<<<<<<<  OdinBulkImportSolitaireCompleted processing completed"
+  rescue => e
+    Rails.logger.error "Rescued while posting BulkImportSolitairesCompleted with error: #{e.inspect}"
   end
 end
