@@ -3,7 +3,7 @@ class OdinBulkImportSolitaireCompleted
 
   def self.perform(auth_code)
     puts ">>>>>>>>  OdinBulkImportSolitaireCompleted processing started"
-    response = ODIN_CLIENT.call(:bulk_import_solitaires_completed) do
+    response = ODIN_CLIENT.call(:bulk_import_process_completed) do
       message auth_code
     end
     Rails.logger.debug "Response to BulkImportSolitairesCompleted : #{response}"
