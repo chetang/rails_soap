@@ -1,4 +1,4 @@
-BATCH_PROCESSING_COUNT = 1000
+BATCH_PROCESSING_COUNT = 500
 LD_API_URL = "http://localhost:4000/"
 LD_ACTION_URLS = {
   bulk_update: LD_API_URL + "bulk_import",

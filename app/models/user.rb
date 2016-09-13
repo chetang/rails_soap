@@ -140,7 +140,7 @@ class User < ActiveRecord::Base
     # Also the calls must be made using background processing
     processed_count = 0
     current_processed_count = BATCH_PROCESSING_COUNT
-    Resque.enqueue(LDUpdatePrices, self.id, priceUpdatedEntities)
+    # Resque.enqueue(LDUpdatePrices, self.id, priceUpdatedEntities)
     while processed_count < items_count
       if current_processed_count > items_count
         current_processed_count = items_count
@@ -294,10 +294,10 @@ class User < ActiveRecord::Base
         access_token = self.get_ld_access_token('LD', true)
         self.update_ld_prices(access_token, collection, true)
       else
-        Rails.logger.error "Rescued bulk_update_ld block and the error is #{e}"
+        Rails.logger.error "Rescued update_ld_prices block and the error is #{e}"
       end
     else
-      Rails.logger.error "Rescued bulk_update_ld block and the error is #{e}"
+      Rails.logger.error "Rescued update_ld_prices block and the error is #{e}"
     end
   end
 
@@ -420,10 +420,10 @@ class User < ActiveRecord::Base
         access_token = self.get_ld_access_token('LD', true)
         self.add_ld_item(access_token, item_attributes, input_currency, cut_grade, true)
       else
-        Rails.logger.error "Rescued bulk_update_ld block and the error is #{e}"
+        Rails.logger.error "Rescued add_ld_item block and the error is #{e}"
       end
     else
-      Rails.logger.error "Rescued bulk_update_ld block and the error is #{e}"
+      Rails.logger.error "Rescued add_ld_item block and the error is #{e}"
     end
   end
 
