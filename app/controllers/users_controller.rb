@@ -26,14 +26,14 @@ class UsersController < ApplicationController
   def bulk_delete
     auth_params = params[:AuthCode]
     collection = params[:Collection]
-    Rails.logger.warn "DeleteMultipleSolitaires has been called @#{DateTime.now}"
     raise "Collection can't be nil. Please provide a list of objects with 'CertifiedBy' and 'CertifiedID'" if collection.blank?
+    Rails.logger.warn "RECEIVE: DeleteMultipleSolitaires has been called @#{DateTime.now} to delete #{collection["SolitaireCertEntity"].length} solitaires"
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     # response = user.delete_solitaires(collection)
     Resque.enqueue(OdinDeleteBulk, user.id, collection)
-    Rails.logger.warn "Successfully processed DeleteMultipleSolitaires and background processing is queued @ #{DateTime.now}"
-    Rails.logger.debug "Successfully processed delete_solitaires and background processing is queued"
+    Rails.logger.warn "INTERNAL: Successfully processed DeleteMultipleSolitaires and background processing is queued @ #{DateTime.now}"
+    # Rails.logger.debug "Successfully processed delete_solitaires and background processing is queued"
     render :soap => "Delete Solitaires is being processed. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
@@ -53,13 +53,13 @@ class UsersController < ApplicationController
     collection = params[:Collection]
     number_of_diamonds = collection.length
     input_currency = params[:InputCurrency]
-    Rails.logger.warn "BulkUpdateSolitairePrices has been called @#{DateTime.now}"
     raise "Collection can't be nil. Please provide a list of objects with 'CertifiedBy', 'CertifiedID' & 'UpdatedPrice'" if collection.blank?
+    Rails.logger.warn "RECEIVE: BulkUpdateSolitairePrices has been called @#{DateTime.now} to update prices of #{collection["SolitairePriceEntity"].length} items"
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     response = user.update_prices(collection, input_currency)
-    Rails.logger.warn "Successfully processed BulkUpdateSolitairePrices and background processing is queued @ #{DateTime.now}"
-    Rails.logger.debug "Successfully processed update_item_prices and background processing is queued"
+    Rails.logger.warn "INTERNAL: Successfully processed BulkUpdateSolitairePrices and background processing is queued @ #{DateTime.now}"
+    # Rails.logger.debug "Successfully processed update_item_prices and background processing is queued"
     render :soap => "#{number_of_diamonds} diamonds processing added successfully. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
@@ -78,14 +78,14 @@ class UsersController < ApplicationController
     auth_params = params[:AuthCode]
     certificate_id = params[:CertifiedId]
     certified_by = params[:CertifiedBy]
-    Rails.logger.warn "DeleteSolitaire has been called @#{DateTime.now}"
+    Rails.logger.warn "RECEIVE: DeleteSolitaire has been called @#{DateTime.now} for solitaire with id #{certificate_id} by #{certified_by}"
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     # response = user.delete_item(certificate_id, certified_by)
     Resque.enqueue(OdinDeleteSolitaire, user.id, certificate_id, certified_by)
     # Resque.enqueue(LDDeleteSolitaire, user.id, certificate_id, certified_by)
-    Rails.logger.debug "Successfully processed delete_item and background processing is queued"
-    Rails.logger.warn "Successfully processed DeleteSolitaire and background processing is queued @ #{DateTime.now}"
+    # Rails.logger.debug "Successfully processed delete_item and background processing is queued"
+    Rails.logger.warn "INTERNAL: Successfully processed DeleteSolitaire and background processing is queued @ #{DateTime.now}"
     render :soap => "Diamond with certificate ID: #{certificate_id} by #{certified_by} will be deleted. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
@@ -100,14 +100,14 @@ class UsersController < ApplicationController
 
   def delete_all_items
     auth_params = params[:AuthCode]
-    Rails.logger.warn "DeleteAllSolitaires has been called @#{DateTime.now}"
+    Rails.logger.warn "RECEIVE: DeleteAllSolitaires has been called @#{DateTime.now}"
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     Resque.enqueue(OdinDeleteAll, user.id)
     # Resque.enqueue(LDDeleteAll, user.id)
     # response = user.delete_all_items()
-    Rails.logger.debug "Successfully processed delete_all_items and background processing is queued"
-    Rails.logger.warn "Successfully processed DeleteAllSolitaires and background processing is queued @ #{DateTime.now}"
+    # Rails.logger.debug "Successfully processed delete_all_items and background processing is queued"
+    Rails.logger.warn "INTERNAL: Successfully processed DeleteAllSolitaires and background processing is queued @ #{DateTime.now}"
     render :soap => "All your diamonds will be deleted. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
@@ -128,13 +128,14 @@ class UsersController < ApplicationController
     auth_params = params[:AuthCode]
     input_currency = params[:InputCurrency]
     b_assign_cut_grade = params[:BAssignCutGrade]
+    raise "Collection can't be nil. Please provide a list of objects" if collection.blank?
+    Rails.logger.warn "RECEIVE: BulkImportSolitaires has been called @#{DateTime.now} to import #{collection["SolitaireAPIEntity"].length} solitaires"
     # Authenticate using auth_params, and process only if valid else return
-    Rails.logger.warn "BulkImportSolitaires has been called @#{DateTime.now}"
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     response = user.bulk_import_items(collection, input_currency, b_assign_cut_grade)
-    Rails.logger.warn "Successfully processed BulkImportSolitaires and background processing is queued @ #{DateTime.now}"
-    Rails.logger.debug "Successfully processed bulk_import_solitaires and background processing is queued"
+    Rails.logger.warn "INTERNAL: Successfully processed BulkImportSolitaires and background processing is queued @ #{DateTime.now}"
+    # Rails.logger.debug "Successfully processed bulk_import_solitaires and background processing is queued"
     render :soap => "Diamonds processing added successfully. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
@@ -218,14 +219,14 @@ class UsersController < ApplicationController
     auth_params = params[:AuthCode]
     input_currency = params[:InputCurrency]
     b_assign_cut_grade = params[:bAssignCutGrade]
-    Rails.logger.warn "AddSolitaire has been called @#{DateTime.now}"
+    Rails.logger.warn "RECEIVE: AddSolitaire has been called @#{DateTime.now}"
     # Authenticate using auth_params, and process only if valid else return
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     Resque.enqueue(OdinAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
     # Resque.enqueue(LDAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
     Rails.logger.debug "Successfully processed add_item and background processing is queued"
-    Rails.logger.warn "Successfully processed AddSolitaire and background processing is queued @ #{DateTime.now}"
+    Rails.logger.warn "INTERNAL: Successfully processed AddSolitaire and background processing is queued @ #{DateTime.now}"
     render :soap => "Diamond Added/ Updated successfully. Response from ODIN is #{response}" and return
   rescue => e
     raise SOAPError, "Error occured : #{e}"
