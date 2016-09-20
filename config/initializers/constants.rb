@@ -1,5 +1,9 @@
 BATCH_PROCESSING_COUNT = 500
-LD_API_URL = "http://localhost:4000/"
+if Rails.env == "production"
+  LD_API_URL = "http://app.liquid.diamonds/"
+else
+  LD_API_URL = "http://localhost:4000/"
+end
 LD_ACTION_URLS = {
   bulk_update: LD_API_URL + "bulk_import",
   add_item: LD_API_URL + "items",

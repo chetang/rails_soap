@@ -314,7 +314,7 @@ class User < ActiveRecord::Base
     path = File.join(directory, file_name)
     bulk_update_url = LD_ACTION_URLS[:bulk_update]
     Rails.logger.debug "bulk update url is #{bulk_update_url}"
-    response = RestClient.post bulk_update_url , {:upload => {file: File.new(path, 'rb')}, :api_call => true}, {:Authorization => "Bearer #{access_token}"}
+    response = RestClient.post bulk_update_url , {:upload => File.open(path, 'rb'), :validate_and_upload => true, :replace_inventory => true}, {:Authorization => "Bearer #{access_token}"}
     parsed_response = JSON.parse(response)
     if response.code == 200
       Rails.logger.debug "File has been successfully uploaded into LD. Validation and saving the new items is in progress."
