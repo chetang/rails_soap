@@ -3,9 +3,9 @@ class LDAutomaticallyBulkImportSolitaire
   def self.perform()
     puts ">>>>>>>>  LDAutomaticallyBulkImportSolitaire processing started"
     suppliers = [
-      {name: "bluestar", access_token: "7bd3598446275bd428b7f3f883b641b8"},
-      {name: "venusftp", access_token: ""},
-      # {name: "ankitgems", access_token: ""},
+      {name: "bluestar", access_token: "e4f039d2bba868929a1d1cede28199c0"},
+      {name: "venusftp", access_token: "83e8bb887dc93f2c4bde082d7fb73f2e"},
+      {name: "ankitgems", access_token: "5a20a731c4427a44e7ab14bb7b70fbbe"},
     ]
     suppliers.each do |supplier|
       begin

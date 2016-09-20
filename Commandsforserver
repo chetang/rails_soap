@@ -1,0 +1,25 @@
+Commands used on server:
+
+  To redirect all request on port 80 to 4000 (needs to be run on every restart of the server)
+    sudo iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 4000
+
+  To find running rails and resque processes:
+    ps aux | grep rails; ps aux | grep resque;
+
+  To kill a process:
+    sudo kill -9 <Process PID>
+
+  To start rails server in production mode in background:
+    bundle exec rails s -e production -p 4000 -b 0.0.0.0 -d
+
+  To start resque in production mode in background:
+    RAILS_ENV=production bundle exec rake resque:work QUEUE='*' BACKGROUND=yes --trace
+
+  To start resque scheduler in production mode in background:
+    RAILS_ENV=production bundle exec rake resque:scheduler BACKGROUND=yes --trace
+
+  To start all required processes:
+    bundle exec rails s -e production -p 4000 -b 0.0.0.0 -d; RAILS_ENV=production bundle exec rake resque:work QUEUE='*' BACKGROUND=yes --trace; RAILS_ENV=production bundle exec rake resque:scheduler BACKGROUND=yes --trace;
+
+  To edit crontab (root level cronjobs):
+    sudo crontab -e
