@@ -3,10 +3,14 @@ class LDAutomaticallyBulkImportSolitaire
   def self.perform()
     puts ">>>>>>>>  LDAutomaticallyBulkImportSolitaire processing started"
     suppliers = [
-      {name: "bluestar", access_token: "e4f039d2bba868929a1d1cede28199c0"},
-      {name: "venusftp", access_token: "83e8bb887dc93f2c4bde082d7fb73f2e"},
-      {name: "ankitgems", access_token: "5a20a731c4427a44e7ab14bb7b70fbbe"},
+      {name: "bluestar", access_token: "b3200eb132fe571162ccf2a41b4cb6ee"},
+      {name: "venusftp", access_token: "57d1f6b828d406fc9777c0e32c8a6d2a"},
+      {name: "ankitgems", access_token: "f8558da603731cc7c1854bbb6d58a182"},
+      {name: "kiran", access_token: "04067195d59127b9181838846f562891"},
+      # {name: "harekrishna", access_token: "811cdb1a0ae5ddd856b67e915bee9d4e"},
+      # {name: "kgirdharlal", access_token: "85a97a15b3a12b80e4983bdf72a507ce"},
     ]
+
     suppliers.each do |supplier|
       begin
         directory = Rails.root.join('public', "ftp_upload/#{supplier[:name]}")
