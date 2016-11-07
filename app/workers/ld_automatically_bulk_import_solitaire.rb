@@ -15,6 +15,7 @@ class LDAutomaticallyBulkImportSolitaire
       begin
         directory = Rails.root.join('public', "ftp_upload/#{supplier[:name]}")
         path = Dir.glob(File.join(directory, '*.*')).max { |a,b| File.ctime(a) <=> File.ctime(b) }
+        next unless path
         bulk_update_url = LD_ACTION_URLS[:bulk_update]
         Rails.logger.debug "bulk update url is #{bulk_update_url}"
         response = RestClient.post bulk_update_url , {:upload => File.open(path, 'rb'), :validate_and_upload => true, :replace_inventory => true}, {:Authorization => "Bearer #{supplier[:access_token]}", 'Content-Type' => 'application/csv'}
