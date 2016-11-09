@@ -1,14 +1,14 @@
 class LDAutomaticallyBulkImportSolitaire
   @queue = :ld_queue
   def self.perform()
-    puts ">>>>>>>>  LDAutomaticallyBulkImportSolitaire processing started"
+    Rails.logger.warn  ">>>>>>>>  LDAutomaticallyBulkImportSolitaire processing started"
     suppliers = [
-      {name: "bluestar", access_token: "b3200eb132fe571162ccf2a41b4cb6ee"},
-      {name: "venusftp", access_token: "57d1f6b828d406fc9777c0e32c8a6d2a"},
-      {name: "ankitgems", access_token: "f8558da603731cc7c1854bbb6d58a182"},
-      {name: "kiran", access_token: "04067195d59127b9181838846f562891"},
-      # {name: "harekrishna", access_token: "811cdb1a0ae5ddd856b67e915bee9d4e"},
-      # {name: "kgirdharlal", access_token: "85a97a15b3a12b80e4983bdf72a507ce"},
+      {name: "bluestar", access_token: "2f91de447a3001afea73c83e6f710ee4"},
+      {name: "venusftp", access_token: "409f1fb72ab801895d213fff4cab6ce5"},
+      {name: "ankitgems", access_token: "fc4306e804c0968703bcadbd3d512c17"},
+      {name: "kiran", access_token: "1acd09c3673172b5259d5f874d2a1f2f"},
+      # {name: "harekrishna", access_token: "6156cc685b63b67b50ab34519918d201"},
+      # {name: "kgirdharlal", access_token: "32f9b4195d4cb3a6cf95f81075a59bfb"},
     ]
 
     suppliers.each do |supplier|
@@ -29,10 +29,10 @@ class LDAutomaticallyBulkImportSolitaire
           Rails.logger.error "Unhandled response. Response code is #{response.code} and response is #{response}."
         end
       rescue => e
-        Rails.logger.error "Rescued bulk_update_ld block and the error is #{e}"
+        Rails.logger.error "Rescued LDAutomaticallyBulkImportSolitaire block and the error is #{e}"
       end
     end
-    puts "<<<<<<<<  LDAutomaticallyBulkImportSolitaire processing completed"
+    Rails.logger.warn  "<<<<<<<<  LDAutomaticallyBulkImportSolitaire processing completed"
   rescue => e
     p "Rescued LDAutomaticallyBulkImportSolitaire perform block and the error is #{e}"
   end
