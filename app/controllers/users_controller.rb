@@ -141,6 +141,25 @@ class UsersController < ApplicationController
     raise SOAPError, "Error occured : #{e}"
   end
 
+  soap_action "BulkImportSolitairesCompleted",
+    :args => {
+      :AuthCode => AuthCode,
+    },
+    :return => :string,
+    :to     => :bulk_import_solitaires_completed
+
+  def bulk_import_solitaires_completed
+    auth_params = params[:AuthCode]
+    Rails.logger.warn "RECEIVE: BulkImportSolitairesCompleted has been called @#{DateTime.now}"
+    user = User.authenticate(auth_params)
+    render :soap => "Invalid Username and password" and return unless user
+    Resque.enqueue(OdinBulkImportSolitaireCompleted, user.id)
+    Rails.logger.warn "INTERNAL: Successfully processed BulkImportSolitairesCompleted and background processing is queued @ #{DateTime.now}"
+    render :soap => "Thank you for uploading inventory. You will be notified by email, in case of any problems/ errors." and return
+  rescue => e
+    raise SOAPError, "Error occured : #{e}"
+  end
+
   soap_action "AddSolitaire",
     :args =>  {
       :AuthCode => AuthCode,

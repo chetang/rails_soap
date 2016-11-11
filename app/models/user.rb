@@ -234,9 +234,6 @@ class User < ActiveRecord::Base
       processed_count = current_processed_count
       current_processed_count += BATCH_PROCESSING_COUNT
     end
-    # Call Odin BulkImportProcessCompleted API
-    bulk_update_completed_message = {"AuthCode" => auth}
-    Resque.enqueue(OdinBulkImportSolitaireCompleted, bulk_update_completed_message)
     # Call ODIN API
     # Convert the collection into a CSV and call the bulk upload API of LD
     # The API Should be called using background processing
