@@ -74,3 +74,49 @@ How to create a new FTP use on AWS:
     sudo mkdir /home/ankitgems/files
     sudo chown ankitgems:ankitgems /home/ankitgems/files
     sudo service vsftpd restart (restart vsftpd)
+
+How to connect via SFTP using PuTTY SFTP from windows:
+  # Steps provided here https://rmtheis.wordpress.com/2011/07/03/setting-up-an-sftp-site-on-amazon-web-services-ec2-creating-an-account-to-share-with-a-third-party-and-restricting-that-account-to-allow-only-sftp/
+  sudo mkdir /home/<username>/.ssh
+  sudo chmod 700 /home/<username>/.ssh
+  sudo touch /home/<username>/.ssh/authorized_keys
+  sudo chmod 600 /home/<username>/.ssh/authorized_keys
+  sudo chown -R <username>:<username> /home/<username>/.ssh
+
+  # generate key-pair for each supplier who wants SFTP connection.
+  sudo ssh-keygen -t <username> (change the path to /home/<username>/.ssh/)
+  # rename the public key (i.e. .pub) to authorized_keys
+  # Rename the private key to include .pem
+  # Download the private key and convert using Puttygen in windows to save private ppk key, which can be given to suppliers.
+  # Enable SFTP connection for those suppliers
+  # Connect via SFTP using psftp
+  psftp -i /path/to/key <username>@52.9.114.67
+  # Once above connection is complete
+  # Add user to the sftponly group
+  sudo adduser <username> sftponly
+  sudo chown root:root /home/<username>
+  sudo chown -R <username>:<username> /home/<username>/.ssh
+  sudo /etc/init.d/ssh restart
+
+  e.g.
+    sudo mkdir /home/ankitgems/.ssh
+    sudo chmod 700 /home/ankitgems/.ssh
+    sudo touch /home/ankitgems/.ssh/authorized_keys
+    sudo chmod 600 /home/ankitgems/.ssh/authorized_keys
+    sudo chown -R ankitgems:ankitgems /home/ankitgems/.ssh
+
+    # generate key-pair for each supplier who wants SFTP connection.
+    sudo ssh-keygen -f ankitgems (change the path to /home/ankitgems/.ssh/)
+    # rename the public key (i.e. .pub) to authorized_keys
+    # Rename the private key to include .pem
+    sudo chown -R ubuntu:ubuntu ankitgems.pem
+    # Download the private key and convert using Puttygen in windows to save private ppk key, which can be given to suppliers.
+    # Enable SFTP connection for those suppliers
+    # Connect via SFTP using psftp
+    psftp -i /path/to/key ankitgems@52.9.114.67
+    # Once above connection is complete
+    # Add user to the sftponly group
+    sudo adduser ankitgems sftponly
+    sudo chown root:root /home/ankitgems
+    sudo chown -R ankitgems:ankitgems /home/ankitgems/.ssh
+    sudo /etc/init.d/ssh restart

@@ -3,12 +3,15 @@ class LDAutomaticallyBulkImportSolitaire
   def self.perform()
     Rails.logger.warn  ">>>>>>>>  LDAutomaticallyBulkImportSolitaire processing started"
     suppliers = [
-      {name: "bluestar", access_token: "2f91de447a3001afea73c83e6f710ee4"},
-      {name: "venusftp", access_token: "409f1fb72ab801895d213fff4cab6ce5"},
-      {name: "ankitgems", access_token: "fc4306e804c0968703bcadbd3d512c17"},
-      {name: "kiran", access_token: "1acd09c3673172b5259d5f874d2a1f2f"},
-      # {name: "harekrishna", access_token: "6156cc685b63b67b50ab34519918d201"},
-      # {name: "kgirdharlal", access_token: "32f9b4195d4cb3a6cf95f81075a59bfb"},
+      {name: "bluestar", access_token: "6130c42177aca8f2138aa0314fe276e2"},
+      {name: "venusftp", access_token: "555259423f3dad59a3306c91f0b7a2d6"},
+      {name: "ankitgems", access_token: "6e890130d9ec9d39caaf9cba9c06f248"},
+      {name: "kiran", access_token: "3a6fc8dd8d8cd2ac3ca20b38e2ce97ef"},
+      {name: "harekrishna", access_token: "e1cf55f78584da3d8182c41e9a45388c"},
+      {name: "kgirdharlal", access_token: "54224f603c74bbdde3662b0564a7e2a1"},
+      {name: "jewelex", access_token: "a8142447f2736676d17947ad4738d40c"},
+      {name: "rosyblue", access_token: "c00e016ee6a91cc6a0719d776f2cf06b"},
+      {name: "shreeramkrishna", access_token: "b98efe04a689091606fffa9d5b0ac4fb"},
     ]
 
     suppliers.each do |supplier|
