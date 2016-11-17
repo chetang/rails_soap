@@ -153,7 +153,7 @@ class UsersController < ApplicationController
     Rails.logger.warn "RECEIVE: BulkImportSolitairesCompleted has been called @#{DateTime.now}"
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
-    Resque.enqueue(OdinBulkImportSolitaireCompleted, user.id)
+    user.bulk_import_completed()
     Rails.logger.warn "INTERNAL: Successfully processed BulkImportSolitairesCompleted and background processing is queued @ #{DateTime.now}"
     render :soap => "Thank you for uploading inventory. You will be notified by email, in case of any problems/ errors." and return
   rescue => e
