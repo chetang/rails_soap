@@ -32,6 +32,8 @@ class UsersController < ApplicationController
     render :soap => "Invalid Username and password" and return unless user
     # response = user.delete_solitaires(collection)
     Resque.enqueue(OdinDeleteBulk, user.id, collection)
+    toDeleteEntities = collection[:SolitaireCertEntity]
+    Resque.enqueue(LDDeleteMultipleSolitaires, user.id, toDeleteEntities)
     Rails.logger.warn "INTERNAL: Successfully processed DeleteMultipleSolitaires and background processing is queued @ #{DateTime.now}"
     # Rails.logger.debug "Successfully processed delete_solitaires and background processing is queued"
     render :soap => "Delete Solitaires is being processed. You will be notified by email, in case of any problems/ errors." and return
@@ -83,7 +85,7 @@ class UsersController < ApplicationController
     render :soap => "Invalid Username and password" and return unless user
     # response = user.delete_item(certificate_id, certified_by)
     Resque.enqueue(OdinDeleteSolitaire, user.id, certificate_id, certified_by)
-    # Resque.enqueue(LDDeleteSolitaire, user.id, certificate_id, certified_by)
+    Resque.enqueue(LDDeleteSolitaire, user.id, certificate_id, certified_by)
     # Rails.logger.debug "Successfully processed delete_item and background processing is queued"
     Rails.logger.warn "INTERNAL: Successfully processed DeleteSolitaire and background processing is queued @ #{DateTime.now}"
     render :soap => "Diamond with certificate ID: #{certificate_id} by #{certified_by} will be deleted. You will be notified by email, in case of any problems/ errors." and return
@@ -243,7 +245,7 @@ class UsersController < ApplicationController
     user = User.authenticate(auth_params)
     render :soap => "Invalid Username and password" and return unless user
     Resque.enqueue(OdinAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
-    # Resque.enqueue(LDAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
+    Resque.enqueue(LDAddSolitaire, user.id, item_properties, input_currency, b_assign_cut_grade)
     Rails.logger.debug "Successfully processed add_item and background processing is queued"
     Rails.logger.warn "INTERNAL: Successfully processed AddSolitaire and background processing is queued @ #{DateTime.now}"
     render :soap => "Diamond Added/ Updated successfully. Response from ODIN is #{response}" and return

@@ -110,7 +110,7 @@ class User < ActiveRecord::Base
     # Also the calls must be made using background processing
     processed_count = 0
     current_processed_count = BATCH_PROCESSING_COUNT
-    # Resque.enqueue(LDUpdatePrices, self.id, priceUpdatedEntities)
+    Resque.enqueue(LDUpdatePrices, self.id, priceUpdatedEntities)
     while processed_count < items_count
       if current_processed_count > items_count
         current_processed_count = items_count
@@ -255,6 +255,20 @@ class User < ActiveRecord::Base
     Rails.logger.error "Rescued while updating item prices in batch with error: #{e.inspect}"
   end
 
+  def ld_delete_multiple_solitaires(collection)
+    bulk_delete_url = LD_ACTION_URLS[:bulk_delete]
+    response = RestClient.post bulk_delete_url , {'to_be_deleted_items[]' => collection, :api_call => true}, {:Authorization => "Bearer #{self.ld_password}"}
+    parsed_response = JSON.parse(response)
+    if response.code == 200
+      Rails.logger.debug "Items have been successfully added to queue to delete them"
+      # That means it is successfully done
+    else
+      Rails.logger.error "Unhandled response. Response code is #{response.code} and response is #{response}."
+    end
+  rescue => e
+    Rails.logger.error "Rescued ld_delete_multiple_solitaires block and the error is #{e}"
+  end
+
   def update_ld_prices(collection)
     update_prices_url = LD_ACTION_URLS[:update_prices]
     response = RestClient.post update_prices_url , {'updated_prices[]' => collection, :api_call => true}, {:Authorization => "Bearer #{self.ld_password}"}
@@ -352,7 +366,7 @@ class User < ActiveRecord::Base
     response = RestClient.post add_item_url , {:item_attributes => item_attributes, :api_call => true}, {:Authorization => "Bearer #{self.ld_password}"}
     parsed_response = JSON.parse(response)
     if response.code == 200
-      Rails.logger.debug "File has been successfully uploaded into LD. Validation and saving the new items is in progress."
+      Rails.logger.debug "Item has been added to LD server for #{self.ld_username}."
       # That means it is successfully done
     else
       Rails.logger.error "Unhandled response. Response code is #{response.code} and response is #{response}."
