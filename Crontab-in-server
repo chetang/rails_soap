@@ -1,0 +1,33 @@
+# Cronjob in Intermediate APP
+# @hourly cp -r /home/bluestar/files/ /home/ubuntu/projects/rails_soap/public/ftp_upload/bluestar/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/bluestar -R
+# @hourly cp -r /home/venusftp/files/ /home/ubuntu/projects/rails_soap/public/ftp_upload/venusftp/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/venusftp -R
+# @hourly cp -r /home/ankitgems/files/ /home/ubuntu/projects/rails_soap/public/ftp_upload/ankitgems/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/ankitgems -R
+# @hourly rm -r /home/ubuntu/projects/rails_soap/public/ftp_upload/*
+
+#
+# Copying latest uploaded CSV file by BlueStar via FTP
+@hourly cp $(ls -1t /home/bluestar/files/*.csv | head -n 1) /home/ubuntu/projects/rails_soap/public/ftp_upload/bluestar/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/bluestar -R
+#
+# Copying latest uploaded CSV file by Venus Jewels via FTP
+@hourly cp $(ls -1t /home/venusftp/files/*.csv | head -n 1) /home/ubuntu/projects/rails_soap/public/ftp_upload/venusftp/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/venusftp -R
+#
+# Copying latest uploaded CSV file by Ankit Gems via FTP
+@hourly cp $(ls -1t /home/ankitgems/files/*.csv | head -n 1) /home/ubuntu/projects/rails_soap/public/ftp_upload/ankitgems/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/ankitgems -R
+#
+# Copying latest uploaded CSV file by Kiran Gems via FTP
+@hourly cp $(ls -1t /home/kiran/files/*.csv | head -n 1) /home/ubuntu/projects/rails_soap/public/ftp_upload/kiran/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/kiran -R
+#
+# Copying latest uploaded CSV file by Hari Krishna via FTP
+@hourly cp $(ls -1t /home/harikrishna/files/*.csv | head -n 1) /home/ubuntu/projects/rails_soap/public/ftp_upload/harikrishna/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/harikrishna -R
+#
+# Copying latest uploaded CSV file by K Girdharlal via FTP
+@hourly cp $(ls -1t /home/kgirdharlal/files/*.csv | head -n 1) /home/ubuntu/projects/rails_soap/public/ftp_upload/kgirdharlal/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/kgirdharlal -R
+#
+# Copying latest uploaded CSV file by Jewelex via FTP
+@hourly cp $(ls -1t /home/jewelex/files/*.csv | head -n 1) /home/ubuntu/projects/rails_soap/public/ftp_upload/jewelex/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/jewelex -R
+#
+# Copying latest uploaded CSV file by Rosy Blue via FTP
+@hourly cp $(ls -1t /home/rosyblue/files/*.csv | head -n 1) /home/ubuntu/projects/rails_soap/public/ftp_upload/rosyblue/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/rosyblue -R
+#
+# Copying latest uploaded CSV file by Shree Ram Krishna via FTP
+@hourly cp $(ls -1t /home/shreeramkrishna/files/*.csv | head -n 1) /home/ubuntu/projects/rails_soap/public/ftp_upload/shreeramkrishna/ && sudo chown ubuntu:ubuntu /home/ubuntu/projects/rails_soap/public/ftp_upload/shreeramkrishna -R

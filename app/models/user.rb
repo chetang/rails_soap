@@ -110,12 +110,12 @@ class User < ActiveRecord::Base
     # Also the calls must be made using background processing
     processed_count = 0
     current_processed_count = BATCH_PROCESSING_COUNT
-    Resque.enqueue(LDUpdatePrices, self.id, priceUpdatedEntities)
     while processed_count < items_count
       if current_processed_count > items_count
         current_processed_count = items_count
       end
       current_collection = priceUpdatedEntities[processed_count...current_processed_count]
+      Resque.enqueue(LDUpdatePrices, self.id, current_collection) # Instead of sending all updatePrices at once, sending them in batches
       json_formatted_current_collection = JSON.dump(current_collection)
       key = Time.now.to_i.to_s
       bulk_import_current_batch_cs = nil
