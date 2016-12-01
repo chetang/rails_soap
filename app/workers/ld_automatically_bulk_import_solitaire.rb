@@ -28,6 +28,7 @@ class LDAutomaticallyBulkImportSolitaire
         response = RestClient.post bulk_update_url , {:upload => File.open(path, 'rb'), :validate_and_upload => true, :replace_inventory => true}, {:Authorization => "Bearer #{supplier[:access_token]}", 'Content-Type' => 'application/csv'}
         parsed_response = JSON.parse(response)
         if response.code == 200
+          # Removing file after every successful upload, as uploads are always done whenever there is a file in the folder. Files are only transferred to this folder if a new file has been uploaded which is taken care of by the check_ftp_upload script run via Cron Job every minute
           File.delete(path)
           Rails.logger.debug "File has been successfully uploaded into LD. Validation and saving the new items is in progress."
           # That means it is successfully done
