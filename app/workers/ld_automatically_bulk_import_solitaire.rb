@@ -12,8 +12,8 @@ class LDAutomaticallyBulkImportSolitaire
       {name: "jewelex", access_token: "3030aad2c090dd87b7791afc135ac3a3"},
       {name: "rosyblue", access_token: "a0e57fece79ee65c4f12c4c503753bd6"},
       {name: "shreeramkrishna", access_token: "9eb7a75603f3556d20709a5608842450"},
-      # {name: "kc", access_token: "95bd43d9ebe6bfd247a491a16d07d4ea"},
-      # {name: "shairu", access_token: "6e080274c2213873def71877ce537a97"},
+      {name: "kantilalchhotalal", access_token: "95bd43d9ebe6bfd247a491a16d07d4ea"},
+      {name: "shairugems", access_token: "6e080274c2213873def71877ce537a97"},
     ]
     suppliers.each do |supplier|
       begin
@@ -28,6 +28,7 @@ class LDAutomaticallyBulkImportSolitaire
         response = RestClient.post bulk_update_url , {:upload => File.open(path, 'rb'), :validate_and_upload => true, :replace_inventory => true}, {:Authorization => "Bearer #{supplier[:access_token]}", 'Content-Type' => 'application/csv'}
         parsed_response = JSON.parse(response)
         if response.code == 200
+          File.delete(path)
           Rails.logger.debug "File has been successfully uploaded into LD. Validation and saving the new items is in progress."
           # That means it is successfully done
         elsif response.code == 422
@@ -39,7 +40,7 @@ class LDAutomaticallyBulkImportSolitaire
         Rails.logger.error "Rescued LDAutomaticallyBulkImportSolitaire block and the error is #{e}"
       end
     end
-    Rails.logger.warn  "<<<<<<<<  LDAutomaticallyBulkImportSolitaire processing completed"
+    Rails.logger.warn  "<<<<<<<<  LDAutomaticallyBulkImportSolitaire processing completed for #{supplier[:name]}"
   rescue => e
     p "Rescued LDAutomaticallyBulkImportSolitaire perform block and the error is #{e}"
   end

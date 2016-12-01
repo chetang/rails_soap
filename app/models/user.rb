@@ -115,7 +115,7 @@ class User < ActiveRecord::Base
         current_processed_count = items_count
       end
       current_collection = priceUpdatedEntities[processed_count...current_processed_count]
-      Resque.enqueue(LDUpdatePrices, self.id, current_collection) # Instead of sending all updatePrices at once, sending them in batches
+      # Resque.enqueue(LDUpdatePrices, self.id, current_collection) # Instead of sending all updatePrices at once, sending them in batches
       json_formatted_current_collection = JSON.dump(current_collection)
       key = Time.now.to_i.to_s
       bulk_import_current_batch_cs = nil
@@ -212,16 +212,16 @@ class User < ActiveRecord::Base
 
   def bulk_import_completed
     Resque.enqueue(OdinBulkImportSolitaireCompleted, self.id)
-    if @@suppliers[self.ld_username]
-      current_directory = Rails.root.join('public', "uploads/#{Rails.env}/csv/upload/LD/#{self.ld_username}")
-      destination_directory = Rails.root.join('public', "ftp_upload/#{self.ld_username}")
-      if !File.directory?(destination_directory)
-        FileUtils.mkdir_p destination_directory
-      end
-      current_file_path_string = "#{current_directory}/#{@@suppliers[self.ld_username]}"
-      destination_file_path_string = "#{destination_directory}/#{@@suppliers[self.ld_username]}"
-      FileUtils.mv(current_file_path_string, destination_file_path_string)
-    end
+    # if @@suppliers[self.ld_username]
+    #   current_directory = Rails.root.join('public', "uploads/#{Rails.env}/csv/upload/LD/#{self.ld_username}")
+    #   destination_directory = Rails.root.join('public', "ftp_upload/#{self.ld_username}")
+    #   if !File.directory?(destination_directory)
+    #     FileUtils.mkdir_p destination_directory
+    #   end
+    #   current_file_path_string = "#{current_directory}/#{@@suppliers[self.ld_username]}"
+    #   destination_file_path_string = "#{destination_directory}/#{@@suppliers[self.ld_username]}"
+    #   FileUtils.mv(current_file_path_string, destination_file_path_string)
+    # end
     @@suppliers.delete(self.ld_username)
   end
 
