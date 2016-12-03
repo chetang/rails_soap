@@ -20,7 +20,7 @@ class LDAutomaticallyBulkImportSolitaire
         directory = Rails.root.join('public', "ftp_upload/#{supplier[:name]}")
         path = Dir.glob(File.join(directory, '*.*')).max { |a,b| File.ctime(a) <=> File.ctime(b) }
         unless path
-          Rails.logger.warn "<<<<<<<<<<<< Skipping BulkImportSolitaires for #{supplier[:name]} as no file was found"
+          # Rails.logger.warn "<<<<<<<<<<<< Skipping BulkImportSolitaires for #{supplier[:name]} as no file was found"
           next
         end
         bulk_update_url = LD_ACTION_URLS[:bulk_update]
@@ -30,6 +30,7 @@ class LDAutomaticallyBulkImportSolitaire
         if response.code == 200
           # Removing file after every successful upload, as uploads are always done whenever there is a file in the folder.
           # Files are only transferred to this folder if a new file has been uploaded which is taken care of by the check_ftp_upload script run via Cron Job every minute
+          Rails.logger.warn "<<<<<<<<<<<< BulkImportSolitaires: File for #{supplier[:name]} has been successfully uploaded into LD"
           File.delete(path)
           Rails.logger.debug "File has been successfully uploaded into LD. Validation and saving the new items is in progress."
           # That means it is successfully done
