@@ -34,6 +34,7 @@ class LDAutomaticallyBulkImportSolitaire
           File.delete(path)
           Rails.logger.debug "File has been successfully uploaded into LD. Validation and saving the new items is in progress."
           # That means it is successfully done
+          sleep(300) # Adding a delay of 5 mins which will prevent bulk uploading all the suppliers inventory simultaneously.
         elsif response.code == 422
           Rails.logger.error "Response code is #{response.code}.Logging the response #{response}."
         else
