@@ -33,6 +33,7 @@ gem 'high_voltage'
 gem 'pg'
 gem 'thin'
 gem 'savon', '~> 2.0'
+gem 'csv-diff', :git=>'https://github.com/chetang/csv-diff', :branch=>"master"
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller', :platforms=>[:mri_20]

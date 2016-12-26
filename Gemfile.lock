@@ -1,4 +1,11 @@
 GIT
+  remote: https://github.com/chetang/csv-diff
+  revision: c5dd7d9a6b0f154cad26c262655cc36ade0e99b8
+  branch: master
+  specs:
+    csv-diff (0.3.2)
+
+GIT
   remote: https://github.com/chetang/wash_out.git
   revision: 95eb14ec20bf11507d76f717830da5caeaf051f9
   branch: support-nested-arrays
@@ -247,6 +254,7 @@ DEPENDENCIES
   bootstrap-sass
   byebug
   coffee-rails (~> 4.1.0)
+  csv-diff!
   devise
   high_voltage
   httpclient
@@ -272,5 +280,8 @@ DEPENDENCIES
   wash_out!
   web-console (~> 2.0)
 
+RUBY VERSION
+   ruby 2.0.0p645
+
 BUNDLED WITH
-   1.12.3
+   1.13.6
