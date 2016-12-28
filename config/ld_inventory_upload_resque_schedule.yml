@@ -9,3 +9,9 @@ queue_inventory_upload:
   args:
   description: "This job uploads inventory for all the suppliers into Liquid Diamonds"
 
+get_and_modify_hk_inventory:
+  every: 1h
+  class: "LDGetAndModifyHKInventory"
+  queue: high
+  args:
+  description: "This job downloads and prepares the file for upload to LD server"

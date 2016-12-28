@@ -12,3 +12,6 @@ LD_ACTION_URLS = {
   delete_all: "#{LD_API_URL}delete_all",
   bulk_delete: "#{LD_API_URL}bulk_delete"
 }
+
+HK_SOURCE_URL = "http://stock.hk.co/hkwebservice/packetlistservlet?usr=LIDIA&pwd=lidia123&typ=CSV"
+HK_FILE_DESTINATION_FOLDER = "./public/ftp_upload/harikrishna"
