@@ -74,9 +74,11 @@ class LDAutomaticallyBulkImportSolitaire
       {name: "jewelex",           production_access_token: "3030aad2c090dd87b7791afc135ac3a3", demo_access_token: "07d08d149f1b5364a87551a3595641c6", key_fields: ["Lab", "CertificateID" ]},
       {name: "rosyblue",          production_access_token: "a0e57fece79ee65c4f12c4c503753bd6", demo_access_token: "326a5b16d5b1e00ee6158c87198213ec", key_fields: ["Lab", "CertificateNo" ]},
       {name: "shreeramkrishna",   production_access_token: "9eb7a75603f3556d20709a5608842450", demo_access_token: "", key_fields: ["LAB", "Certificate #" ]},
-      {name: "kantilalchhotalal", production_access_token: "95bd43d9ebe6bfd247a491a16d07d4ea", demo_access_token: "9523c3fae486318acd98404f88efa055", key_fields: ["LAB", "Certificate #" ]},
+      {name: "kantilalchhotalal", production_access_token: "95bd43d9ebe6bfd247a491a16d07d4ea", demo_access_token: "9523c3fae486318acd98404f88efa055", key_fields: ["CERT", "CERT_NO"      ]},
       {name: "shairugems",        production_access_token: "6e080274c2213873def71877ce537a97", demo_access_token: "702667f21ff44641cd3823eb1c945253", key_fields: ["Lab", "CertiNo"       ]},
+      {name: "jbbrothers",        production_access_token: "5f626d6f5738b7d8bce28c40dbeeba6a", demo_access_token: "282821d618c7165bd230302c5d7f338e", key_fields: ["Lab", "CertiNo"       ]},
     ]
+
 
     suppliers.each do |supplier|
       begin
