@@ -26,3 +26,9 @@ LD_DEMO_ACTION_URLS = {
 
 HK_SOURCE_URL = "http://stock.hk.co/hkwebservice/packetlistservlet?usr=LIDIA&pwd=lidia123&typ=CSV"
 HK_FILE_DESTINATION_FOLDER = "./public/ftp_upload/harikrishna"
+
+KC_IN_HAND_STOCK_URL = "http://stock.kantilalchhotalal.com/GetData/S"
+KC_ENTIRE_STOCK_URL = "http://stock.kantilalchhotalal.com/GetData/SM"
+KC_SINGLE_DIAMOND_GET_URL = "http://stock.kantilalchhotalal.com/GetDataByLotBarcode/" # Append this by barcode id (stock number?)
+# e.g.: http://stock.kantilalchhotalal.com/GetDataByLotBarcode/317302
+KC_FILE_DESTINATION_FOLDER = "./public/ftp_upload/kantilalchhotalal"

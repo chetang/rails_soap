@@ -14,4 +14,11 @@ get_and_modify_hk_inventory:
   class: "LDGetAndModifyHKInventory"
   queue: high
   args:
-  description: "This job downloads and prepares the file for upload to LD server"
+  description: "This job downloads HK inventory and prepares the file for upload to LD server"
+
+get_kc_inventory:
+  every: 1h
+  class: "LDGetKCInventory"
+  queue: high
+  args:
+  description: "This job downloads KC inventory and prepares the file for upload to LD server"
