@@ -44,43 +44,38 @@ class LDAutomaticallyBulkImportSolitaire
   def self.bulk_delete(supplier, to_be_deleted_keys)
     bulk_delete_url = LD_ACTION_URLS[:bulk_delete]
     Rails.logger.debug "bulk update url is #{bulk_delete_url}"
-    RestClient.post bulk_delete_url , {'to_be_deleted_items[]' => process_to_be_deleted_row_keys(to_be_deleted_keys), :api_call => true}, {:Authorization => "Bearer #{supplier[:access_token]}"}
+    RestClient.post bulk_delete_url , {'to_be_deleted_items[]' => process_to_be_deleted_row_keys(to_be_deleted_keys), :api_call => true}, {:Authorization => "Bearer #{supplier[:production_access_token]}"}
+    if supplier[:demo_access_token]
+      demo_bulk_delete_url = LD_DEMO_ACTION_URLS[:bulk_delete]
+      RestClient.post demo_bulk_delete_url , {'to_be_deleted_items[]' => process_to_be_deleted_row_keys(to_be_deleted_keys), :api_call => true}, {:Authorization => "Bearer #{supplier[:demo_access_token]}"}
+    end
   end
 
   def self.bulk_import(supplier, file, is_sync = false)
     bulk_update_url = LD_ACTION_URLS[:bulk_update]
     Rails.logger.debug "bulk update url is #{bulk_update_url}"
-    RestClient.post bulk_update_url , {:upload => File.open(file, 'rb'), :validate_and_upload => true, :replace_inventory => is_sync}, {:Authorization => "Bearer #{supplier[:access_token]}", 'Content-Type' => 'application/csv'}
+    RestClient.post bulk_update_url , {:upload => File.open(file, 'rb'), :validate_and_upload => true, :replace_inventory => is_sync}, {:Authorization => "Bearer #{supplier[:production_access_token]}", 'Content-Type' => 'application/csv'}
+    if supplier[:demo_access_token]
+      demo_bulk_update_url = LD_DEMO_ACTION_URLS[:bulk_update]
+      RestClient.post demo_bulk_update_url , {:upload => File.open(file, 'rb'), :validate_and_upload => true, :replace_inventory => is_sync}, {:Authorization => "Bearer #{supplier[:demo_access_token]}", 'Content-Type' => 'application/csv'}
+    end
   end
 
 
   def self.perform()
     Rails.logger.warn  ">>>>>>>>  LDAutomaticallyBulkImportSolitaire processing started"
-    # suppliers = [
-    #   {name: "bluestar", access_token: "8ccf8b94cba2986088a2cc5147487ec4"},
-    #   {name: "venusftp", access_token: "2c7d667820f3c8b7a3369fc0bde67195"},
-    #   {name: "ankitgems", access_token: "d8cecd66998578d89ae1c614ad83d821"},
-    #   {name: "kiran", access_token: "a63210ead6d96dc15efda1ef252c9457"},
-    #   {name: "harikrishna", access_token: "f46700ffb203bcd322e3cb9003ee2efb"},
-    #   {name: "kgirdharlal", access_token: "a38f122abda8861bf9bdb28342824601"},
-    #   {name: "jewelex", access_token: "3030aad2c090dd87b7791afc135ac3a3"},
-    #   {name: "rosyblue", access_token: "a0e57fece79ee65c4f12c4c503753bd6"},
-    #   {name: "shreeramkrishna", access_token: "9eb7a75603f3556d20709a5608842450"},
-    #   {name: "kantilalchhotalal", access_token: "95bd43d9ebe6bfd247a491a16d07d4ea"},
-    #   {name: "shairugems", access_token: "6e080274c2213873def71877ce537a97"},
-    # ]
     suppliers = [
-      {name: "bluestar",          access_token: "8ccf8b94cba2986088a2cc5147487ec4", key_fields: ["LAB", "Certificate #" ]},
-      {name: "venusftp",          access_token: "2c7d667820f3c8b7a3369fc0bde67195", key_fields: ["Lab", "Certificate #" ]},
-      {name: "ankitgems",         access_token: "d8cecd66998578d89ae1c614ad83d821", key_fields: ["Lab", "Certificate #" ]},
-      {name: "kiran",             access_token: "a63210ead6d96dc15efda1ef252c9457", key_fields: ["Lab", "Certificate #" ]},
-      {name: "harikrishna",       access_token: "f46700ffb203bcd322e3cb9003ee2efb", key_fields: ["LAB", "CERT_NO"       ]},
-      {name: "kgirdharlal",       access_token: "a38f122abda8861bf9bdb28342824601", key_fields: ["Lab", "Certificate #" ]},
-      {name: "jewelex",           access_token: "3030aad2c090dd87b7791afc135ac3a3", key_fields: ["Lab", "CertificateID" ]},
-      {name: "rosyblue",          access_token: "a0e57fece79ee65c4f12c4c503753bd6", key_fields: ["Lab", "CertificateNo" ]},
-      {name: "shreeramkrishna",   access_token: "9eb7a75603f3556d20709a5608842450", key_fields: ["LAB", "Certificate #" ]},
-      {name: "kantilalchhotalal", access_token: "95bd43d9ebe6bfd247a491a16d07d4ea", key_fields: ["LAB", "Certificate #" ]},
-      {name: "shairugems",        access_token: "6e080274c2213873def71877ce537a97", key_fields: ["Lab", "CertiNo"       ]},
+      {name: "bluestar",          production_access_token: "8ccf8b94cba2986088a2cc5147487ec4", demo_access_token: "4122ce3466ab96df434a4e81eab82532", key_fields: ["LAB", "Certificate #" ]},
+      {name: "venusftp",          production_access_token: "2c7d667820f3c8b7a3369fc0bde67195", demo_access_token: "d2c56c2bca84208c544329e13d4cfba6", key_fields: ["Lab", "Certificate #" ]},
+      {name: "ankitgems",         production_access_token: "d8cecd66998578d89ae1c614ad83d821", demo_access_token: "edf2b11607d5d9bd5fbf964702b51775", key_fields: ["Lab", "Certificate #" ]},
+      {name: "kiran",             production_access_token: "a63210ead6d96dc15efda1ef252c9457", demo_access_token: "dcd9a4315f3e89fea01d28f796ad5ebf", key_fields: ["Lab", "Certificate #" ]},
+      {name: "harikrishna",       production_access_token: "f46700ffb203bcd322e3cb9003ee2efb", demo_access_token: "f5bb3e0f0febe95b523b7b87c6d3fa38", key_fields: ["LAB", "CERT_NO"       ]},
+      {name: "kgirdharlal",       production_access_token: "a38f122abda8861bf9bdb28342824601", demo_access_token: "205d896941684610a4466b490f6fb6c5", key_fields: ["Lab", "Certificate #" ]},
+      {name: "jewelex",           production_access_token: "3030aad2c090dd87b7791afc135ac3a3", demo_access_token: "07d08d149f1b5364a87551a3595641c6", key_fields: ["Lab", "CertificateID" ]},
+      {name: "rosyblue",          production_access_token: "a0e57fece79ee65c4f12c4c503753bd6", demo_access_token: "326a5b16d5b1e00ee6158c87198213ec", key_fields: ["Lab", "CertificateNo" ]},
+      {name: "shreeramkrishna",   production_access_token: "9eb7a75603f3556d20709a5608842450", demo_access_token: "", key_fields: ["LAB", "Certificate #" ]},
+      {name: "kantilalchhotalal", production_access_token: "95bd43d9ebe6bfd247a491a16d07d4ea", demo_access_token: "9523c3fae486318acd98404f88efa055", key_fields: ["LAB", "Certificate #" ]},
+      {name: "shairugems",        production_access_token: "6e080274c2213873def71877ce537a97", demo_access_token: "702667f21ff44641cd3823eb1c945253", key_fields: ["Lab", "CertiNo"       ]},
     ]
 
     suppliers.each do |supplier|

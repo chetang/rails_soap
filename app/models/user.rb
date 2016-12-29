@@ -47,12 +47,12 @@ class User < ActiveRecord::Base
       "UserName" => self.odin_username,
       "Password" => self.odin_password
     }
-    Rails.logger.warn "REQUEST: Odin 'delete_solitaire' is called for item with id #{certificate_id} by #{certified_by} @ #{DateTime.now}"
+    Rails.logger.debug "REQUEST: Odin 'delete_solitaire' is called for item with id #{certificate_id} by #{certified_by} @ #{DateTime.now}"
     delete_message = {"AuthCode" => auth, "CertifiedID" => certificate_id, "CertifiedBy" => certified_by}
     response = ODIN_CLIENT.call(:delete_solitaire) do
       message delete_message
     end
-    Rails.logger.warn "RESPONSE: Odin successfully responded to 'delete_solitaire' for item with id #{certificate_id} by #{certified_by} @ #{DateTime.now} with response: #{response}"
+    Rails.logger.debug "RESPONSE: Odin successfully responded to 'delete_solitaire' for item with id #{certificate_id} by #{certified_by} @ #{DateTime.now} with response: #{response}"
     Rails.logger.debug "Response from delete_solitaire ODIN is : #{response}"
     # TODO : Add the above API call in background process
     # Call the LD API
@@ -66,12 +66,12 @@ class User < ActiveRecord::Base
       "UserName" => self.odin_username,
       "Password" => self.odin_password
     }
-    Rails.logger.warn "REQUEST: Odin 'delete_all_solitaires' is called @ #{DateTime.now}"
+    Rails.logger.debug "REQUEST: Odin 'delete_all_solitaires' is called @ #{DateTime.now}"
     delete_all_message = {"AuthCode" => auth}
     response = ODIN_CLIENT.call(:delete_all_solitaires) do
       message delete_all_message
     end
-    Rails.logger.warn "RESPONSE: Odin successfully responded to 'delete_all_solitaires' @ #{DateTime.now} with response: #{response}"
+    Rails.logger.debug "RESPONSE: Odin successfully responded to 'delete_all_solitaires' @ #{DateTime.now} with response: #{response}"
     Rails.logger.info "Response from delete_all_solitaires ODIN is : #{response}"
     # TODO : Add the above API call in background process
     # Call the LD API
@@ -86,12 +86,12 @@ class User < ActiveRecord::Base
       "UserName" => self.odin_username,
       "Password" => self.odin_password
     }
-    Rails.logger.warn "REQUEST: Odin 'delete_multiple_solitaires' is called for #{collection["SolitaireCertEntity"].length} solitaires @ #{DateTime.now}"
+    Rails.logger.debug "REQUEST: Odin 'delete_multiple_solitaires' is called for #{collection["SolitaireCertEntity"].length} solitaires @ #{DateTime.now}"
     bulk_delete_message = {"AuthCode" => auth, "Collection" => collection}
     response = ODIN_CLIENT.call(:delete_multiple_solitaires) do
       message bulk_delete_message
     end
-    Rails.logger.warn "RESPONSE: Odin successfully responded to 'delete_multiple_solitaires' for #{collection["SolitaireCertEntity"].length} solitaires @ #{DateTime.now} with response: #{response}"
+    Rails.logger.debug "RESPONSE: Odin successfully responded to 'delete_multiple_solitaires' for #{collection["SolitaireCertEntity"].length} solitaires @ #{DateTime.now} with response: #{response}"
     Rails.logger.info "Response from delete_multiple_solitaires ODIN is : #{response}"
     # Call the LD API
     return true
@@ -170,7 +170,7 @@ class User < ActiveRecord::Base
         csv << hash_values
       end
     end
-    Rails.logger.warn "INTERNAL: bulk_import_items is called @ #{DateTime.now}- created filename is #{sanitized_file_name}"
+    Rails.logger.debug "INTERNAL: bulk_import_items is called @ #{DateTime.now}- created filename is #{sanitized_file_name}"
     # CSV.open(path, "wb") do |csv|
     #   csv << solitaireAPIEntities.first.keys
     #   solitaireAPIEntities.each do |hash|
@@ -234,14 +234,14 @@ class User < ActiveRecord::Base
     if batch_cs.present?
       collection_string = batch_cs.collection
       collection = JSON.parse(collection_string)
-      Rails.logger.warn "REQUEST: Odin 'bulk_update_solitaire_prices' is called for #{collection.length} solitaires @ #{DateTime.now}"
+      Rails.logger.debug "REQUEST: Odin 'bulk_update_solitaire_prices' is called for #{collection.length} solitaires @ #{DateTime.now}"
       bulk_update_batch_message = {"AuthCode" => auth, "Collection" => {"SolitairePriceEntity" => collection}, "InputCurrency" => input_currency}
       # TODO : Move this call in a tube for the company
       # All ODIN related APIs should be queued in a single tube
       response = ODIN_CLIENT.call(:bulk_update_solitaire_prices) do
         message bulk_update_batch_message
       end
-      Rails.logger.warn "RESPONSE: Odin successfully responded to 'bulk_update_solitaire_prices' for #{collection.length} solitaires @ #{DateTime.now} with response: #{response}"
+      Rails.logger.debug "RESPONSE: Odin successfully responded to 'bulk_update_solitaire_prices' for #{collection.length} solitaires @ #{DateTime.now} with response: #{response}"
       Rails.logger.debug "Response from bulk_update_solitaire_prices : #{response}"
       # Call ODIN API
       # Convert the collection into a CSV and call the bulk upload API of LD
@@ -315,12 +315,12 @@ class User < ActiveRecord::Base
       collection.each do |entity|
         entity.delete_if{|k, v| v.nil?}
       end
-      Rails.logger.warn "REQUEST: Odin 'bulk_import_solitaires' is called for #{collection.length} @ #{DateTime.now}"
+      Rails.logger.debug "REQUEST: Odin 'bulk_import_solitaires' is called for #{collection.length} @ #{DateTime.now}"
       bulk_import_batch_message = {"AuthCode" => auth, "Collection" => {"SolitaireAPIEntity" => collection}, "InputCurrency" => input_currency, "AssignCutGrade" => cut_grade}
       response = ODIN_CLIENT.call(:bulk_import_solitaires) do
         message bulk_import_batch_message
       end
-      Rails.logger.warn "RESPONSE: Odin successfully responded to 'bulk_import_solitaires' for #{collection.length} @ #{DateTime.now} with response: #{response}"
+      Rails.logger.debug "RESPONSE: Odin successfully responded to 'bulk_import_solitaires' for #{collection.length} @ #{DateTime.now} with response: #{response}"
       # Rails.logger.info "Response from bulkImportSolitaires : #{response}"
       puts "Response from bulkImportSolitaires : #{response}"
       # Call ODIN API
@@ -346,13 +346,13 @@ class User < ActiveRecord::Base
     # Call ODIN API
     # The API Should be called using backgound processing
     # All ODIN related APIs should be queued in a single tube
-    Rails.logger.warn "REQUEST: Odin 'add_solitaire' is called @ #{DateTime.now}"
+    Rails.logger.debug "REQUEST: Odin 'add_solitaire' is called @ #{DateTime.now}"
     Rails.logger.debug "AddSolitaire message is #{add_solitaire_message.inspect}"
     response = ODIN_CLIENT.call(:add_solitaire) do
       message add_solitaire_message
     end
     # If no error occurs,
-    Rails.logger.warn "RESPONSE: Odin successfully responded to 'add_solitaire' @ #{DateTime.now} with response: #{response}"
+    Rails.logger.debug "RESPONSE: Odin successfully responded to 'add_solitaire' @ #{DateTime.now} with response: #{response}"
     Rails.logger.debug "Response of AddSolitaire from ODIN is #{response.inspect}"
     # Rails.logger.info "Response of AddSolitaire from ODIN is #{response.inspect}"
     return response.body

@@ -4,6 +4,8 @@ if Rails.env == "production"
 else
   LD_API_URL = "http://localhost:4000/"
 end
+LD_DEMO_API_URL = "http://demo.liquid.diamonds/"
+
 LD_ACTION_URLS = {
   bulk_update: "#{LD_API_URL}bulk_import",
   add_item: "#{LD_API_URL}items",
@@ -11,6 +13,15 @@ LD_ACTION_URLS = {
   delete_solitaire: "#{LD_API_URL}delete_item",
   delete_all: "#{LD_API_URL}delete_all",
   bulk_delete: "#{LD_API_URL}bulk_delete"
+}
+
+LD_DEMO_ACTION_URLS = {
+  bulk_update: "#{LD_DEMO_API_URL}bulk_import",
+  add_item: "#{LD_DEMO_API_URL}items",
+  update_prices: "#{LD_DEMO_API_URL}update_prices",
+  delete_solitaire: "#{LD_DEMO_API_URL}delete_item",
+  delete_all: "#{LD_DEMO_API_URL}delete_all",
+  bulk_delete: "#{LD_DEMO_API_URL}bulk_delete"
 }
 
 HK_SOURCE_URL = "http://stock.hk.co/hkwebservice/packetlistservlet?usr=LIDIA&pwd=lidia123&typ=CSV"
