@@ -39,6 +39,8 @@ class LDAutomaticallyBulkImportSolitaire
       end
     end
     return path
+  rescue => e
+    Rails.logger.error "Rescued generate_add_update_file for #{supplier[:name]} with original_file_path #{original_file_path} and to_be_uploaded_rows: #{to_be_uploaded_rows}. Exception is #{e}"
   end
 
   def self.bulk_delete(supplier, to_be_deleted_keys)
