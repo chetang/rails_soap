@@ -30,7 +30,7 @@ class LDAutomaticallyBulkImportSolitaire
           end
         rescue  CSV::MalformedCSVError => er
           Rails.logger.warn er.message
-          Rails.logger.warn "Writing invalid file: Captured CSV::MalformedCSVError"
+          Rails.logger.warn "Writing invalid file: Captured CSV::MalformedCSVError for #{supplier[:name]} and original_file_path is #{original_file_path}"
           # and continue
         rescue => e
           log_rescue(e)
@@ -97,52 +97,57 @@ class LDAutomaticallyBulkImportSolitaire
         if old_file_path
           # Compare the two CSVs to find out the differences
           start_time = Time.now
-          diff = CSVDiff.new(old_file_path, new_file_path, key_fields:supplier[:key_fields])
-          time_taken = Time.now - start_time
-          # puts "Time taken to find differences is #{time_taken}"
-          # puts diff.summary.inspect
-          to_be_added_uploaded_rows = [0] # As we always want to include Headers in the new CSV
-          to_be_deleted_keys = []
-          if diff.adds.length > 0
-            diff.adds.values.each{|row| to_be_added_uploaded_rows << row[:row]}
-          end
-          if diff.updates.length > 0
-            diff.updates.values.each{|row| to_be_added_uploaded_rows << row[:row]}
-          end
-          to_be_deleted_keys = diff.deletes.keys
-          if to_be_deleted_keys.length > 0
-            # puts "#{to_be_deleted_keys.length} diamonds found that needs to be deleted. "
-            begin
-              response = bulk_delete(supplier, to_be_deleted_keys)
-              # puts "Response for the bulk_delete is #{response} and code is #{response.code}"
+          diff = nil
+          begin
+            diff = CSVDiff.new(old_file_path, new_file_path, key_fields:supplier[:key_fields])
+            time_taken = Time.now - start_time
+            # puts "Time taken to find differences is #{time_taken}"
+            # puts diff.summary.inspect
+            to_be_added_uploaded_rows = [0] # As we always want to include Headers in the new CSV
+            to_be_deleted_keys = []
+            if diff.adds.length > 0
+              diff.adds.values.each{|row| to_be_added_uploaded_rows << row[:row]}
+            end
+            if diff.updates.length > 0
+              diff.updates.values.each{|row| to_be_added_uploaded_rows << row[:row]}
+            end
+            to_be_deleted_keys = diff.deletes.keys
+            if to_be_deleted_keys.length > 0
+              # puts "#{to_be_deleted_keys.length} diamonds found that needs to be deleted. "
+              begin
+                response = bulk_delete(supplier, to_be_deleted_keys)
+                # puts "Response for the bulk_delete is #{response} and code is #{response.code}"
+                if response.code == 200
+                  Rails.logger.debug "Items have been successfully deleted"
+                  # puts "Items have been successfully deleted"
+                else
+                  Rails.logger.error "Unhandled response for #{supplier[:name]} for bulk_delete. Response code is #{response.code} and response is #{response}."
+                  # puts "Unhandled response. Response code is #{response.code} and response is #{response}."
+                end
+              rescue => e
+                Rails.logger.error "Bulk Delete raised on exception for #{supplier[:name]} and the error is #{e}"
+                # puts "Bulk Delete raised on exception and the error is #{e}"
+              end
+            end
+            # Create a CSV from to_be_added_uploaded_rows
+            if to_be_added_uploaded_rows.length > 1 # By default, it's length is 1 as it has 0 as it's first row_number
+              only_new_updated_rows_file = generate_add_update_file(new_file_directory, supplier, new_file_path, to_be_added_uploaded_rows)
+              # Call BulkImport without sync and the above created CSV as uploaded file
+              response = bulk_import(supplier, only_new_updated_rows_file, false)
+              # puts "Response for the bulk_udpate w/o sync is #{response} and code is #{response.code}"
               if response.code == 200
-                Rails.logger.debug "Items have been successfully deleted"
-                # puts "Items have been successfully deleted"
+                # Removing file after every successful upload, as uploads are always done whenever there is a file in the folder.
+                # Files are only transferred to this folder if a new file has been uploaded which is taken care of by the check_ftp_upload script run via Cron Job every minute
+                Rails.logger.debug "File with only selected(new/updated) rows has been successfully uploaded into LD without syncing enitre inventory. Validation and saving the new items is in progress."
+                # puts "File with only selected(new/updated) rows has been successfully uploaded into LD without syncing enitre inventory. Validation and saving the new items is in progress."
               else
-                Rails.logger.error "Unhandled response. Response code is #{response.code} and response is #{response}."
+                Rails.logger.error "Unhandled response for #{supplier[:name]} for bulk_import only added_updated_rows. Response code is #{response.code} and response is #{response}."
                 # puts "Unhandled response. Response code is #{response.code} and response is #{response}."
               end
-            rescue => e
-              Rails.logger.error "Bulk Delete raised on exception and the error is #{e}"
-              # puts "Bulk Delete raised on exception and the error is #{e}"
+              FileUtils.rm(only_new_updated_rows_file)
             end
-          end
-          # Create a CSV from to_be_added_uploaded_rows
-          if to_be_added_uploaded_rows.length > 1 # By default, it's length is 1 as it has 0 as it's first row_number
-            only_new_updated_rows_file = generate_add_update_file(new_file_directory, supplier, new_file_path, to_be_added_uploaded_rows)
-            # Call BulkImport without sync and the above created CSV as uploaded file
-            response = bulk_import(supplier, only_new_updated_rows_file, false)
-            # puts "Response for the bulk_udpate w/o sync is #{response} and code is #{response.code}"
-            if response.code == 200
-              # Removing file after every successful upload, as uploads are always done whenever there is a file in the folder.
-              # Files are only transferred to this folder if a new file has been uploaded which is taken care of by the check_ftp_upload script run via Cron Job every minute
-              Rails.logger.debug "File with only selected(new/updated) rows has been successfully uploaded into LD without syncing enitre inventory. Validation and saving the new items is in progress."
-              # puts "File with only selected(new/updated) rows has been successfully uploaded into LD without syncing enitre inventory. Validation and saving the new items is in progress."
-            else
-              Rails.logger.error "Unhandled response. Response code is #{response.code} and response is #{response}."
-              # puts "Unhandled response. Response code is #{response.code} and response is #{response}."
-            end
-            FileUtils.rm(only_new_updated_rows_file)
+          rescue => e
+            Rails.logger.error "Rescued csv_diff block for #{supplier[:name]} and new file #{new_file_path} and the error is #{e}"
           end
         else
           # Call BulkImport with sync as there is no old CSV to compare from
@@ -151,7 +156,7 @@ class LDAutomaticallyBulkImportSolitaire
             Rails.logger.debug "Enitre file has been successfully uploaded into LD. Validation and saving the new items is in progress."
             # puts "Enitre file has been successfully uploaded into LD. Validation and saving the new items is in progress."
           else
-            Rails.logger.error "Unhandled response. Response code is #{response.code} and response is #{response}."
+            Rails.logger.error "Unhandled response for #{supplier[:name]} for bulk_import sync. Response code is #{response.code} and response is #{response}."
             # puts "Unhandled response. Response code is #{response.code} and response is #{response}."
           end
         end
